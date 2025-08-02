@@ -3,3 +3,13 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+.vscode
+.directory
+*repomix*
+*claude*
+include
+lib
+*.bak
+
+# copy src/config_safe.h to this and edit to include your credentials
+src/config.h
