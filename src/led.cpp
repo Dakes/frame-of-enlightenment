@@ -222,38 +222,14 @@ void Led::show(u16_t delay)
 */
 void Led::lightLed(CRGB* led, int16_t* count, const uint8_t hue, uint8_t core)
 {
-    struct lightLedParameters* params = (struct lightLedParameters*) malloc(sizeof(struct lightLedParameters));
-    params->led = led;
-    params->count = count;
-    params->hue = hue;
-    params->self = this;
-
-    TaskHandle_t Task1;
-
-    xTaskCreatePinnedToCore(
-        lightLedMT,   /* Function to implement the task */
-        "LightLed", /* Name of the task */
-        1000,       /* Stack size in words */
-        params,     /* Task input parameter */
-        0,          /* Priority of the task */
-        &Task1,     /* Task handle. */
-        core);      /* Core where the task should run */
+    if (!count || *count <= 0) return;
+    fadeToHue(led, hue);
+    (*count)--;
 
 
     // lightLed(params);
 }
 
-void Led::lightLedMT(void* parameters)
-{
-    lightLedParameters* data = (lightLedParameters*) parameters;
-    if (data->count)
-    {
-        data->self->fadeToHue(data->led, data->hue);
-        (*data->count)--;
-    }
-
-    free(data);
-}
 
 void Led::lightLeds(int16_t reviews, int16_t lessons)
 {
@@ -277,7 +253,7 @@ void Led::lightLeds(int16_t reviews, int16_t lessons)
     // fill from the middle to the outside
     for( uint8_t y = 0; y < MATRIX_HEIGHT; y++)
     {
-        for (uint8_t x=0; x <= MATRIX_WIDTH; x++)
+        for (uint8_t x=0; x < MATRIX_WIDTH; x++)
         {
             if (lessonLeds > 0)
             {
