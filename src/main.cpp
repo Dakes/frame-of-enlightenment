@@ -35,23 +35,28 @@ void setup()
     led.begin();
 }
 
-/*
-int freeMemory() {
-  char top;
-  return &top - reinterpret_cast<char*>(sbrk(0));
+
+void showWifi()
+{
+    static String lastSSID;
+    if (WiFi.SSID() != lastSSID)
+    {
+        lastSSID = WiFi.SSID();
+
+        Serial.print("IP address: ");
+        Serial.print(WiFi.localIP());
+        Serial.print("  | SSID: ");
+        Serial.println(WiFi.SSID());
+        Serial.println("WiFi.status(): " + String(WiFi.status()));
+    }
 }
-*/
 
 void loop()
 {
-    Serial.println((String)"FreeHeap: " + ESP.getFreeHeap()/1024);
-    Serial.print("IP address: ");
-    Serial.print(WiFi.localIP());
-    Serial.print("  | SSID: ");
-    Serial.println(WiFi.SSID());
-    // Serial.println("WiFi.status(): " + String(WiFi.status()));
 
-    // if (WiFi.isConnected())
+    Serial.println((String)"FreeHeap: " + ESP.getFreeHeap()/1024);
+    showWifi();
+
     if (Utils::WiFiConnected())
     {
         wk.refresh();
@@ -74,20 +79,17 @@ void loop()
 
     matrix.clear();
     int idx = 0;
-    auto place = [&](CellType type, uint32_t availableAt, int count)
-    {
-        for (int i = 0; i < count && idx < MATRIX_WIDTH * MATRIX_HEIGHT; ++i, ++idx)
-        {
-            uint8_t x = idx % MATRIX_WIDTH;
-            uint8_t y = idx / MATRIX_WIDTH;
-            matrix.setCell(x, y, type, availableAt);
-        }
-    };
-    place(CELL_LESSON, 0, wk.getLessons());
-    place(CELL_REVIEW, 0, wk.getReviews());
-    place(CELL_REVIEW, 1, wk.getReviews(1));
+
+    // test sets
+    matrix.setCell(0, 0, CELL_REVIEW, 0);
+    matrix.setCell(1, 1, CELL_REVIEW, 0);
+    matrix.setCell(2, 5, CELL_REVIEW, 0);
+    matrix.setCell(3, 6, CELL_LESSON, 0);
+
+    matrix.simulationStep();
+
     led.displayMatrix(matrix);
 
-    // sleep(10);
+    delay(33);
 }
 

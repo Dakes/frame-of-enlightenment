@@ -8,12 +8,8 @@ Matrix::Matrix()
 void Matrix::clear()
 {
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
-    {
         for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
-        {
             cells[x][y] = Cell();
-        }
-    }
 }
 
 void Matrix::setCell(uint8_t x, uint8_t y, CellType type, uint32_t availableAt)
@@ -22,6 +18,11 @@ void Matrix::setCell(uint8_t x, uint8_t y, CellType type, uint32_t availableAt)
         return;
     cells[x][y].type = type;
     cells[x][y].availableAt = availableAt;
+    Serial.println(cells[x][y].hue);
+    cells[x][y].hue = type == CELL_LESSON ? HUE_LESSON : HUE_REVIEW;
+    Serial.println(cells[x][y].hue);
+    cells[x][y].hue += random(-hueRandomness, hueRandomness+1);
+    Serial.println(cells[x][y].hue);
 }
 
 Cell Matrix::getCell(uint8_t x, uint8_t y) const
@@ -29,4 +30,9 @@ Cell Matrix::getCell(uint8_t x, uint8_t y) const
     if (x >= MATRIX_WIDTH || y >= MATRIX_HEIGHT)
         return Cell();
     return cells[x][y];
+}
+
+void Matrix::simulationStep()
+{
+
 }

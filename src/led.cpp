@@ -136,28 +136,6 @@ void Led::printLeds()
 }
 
 /**
- * turn on individual LED, first lessons, then reviews. 
- * Reduces passed pointer int values. 
- * @return true: default. false, if nothing can be done any more
-*/ /*
-bool Led::setLed(int16_t* reviews, int16_t* lessons, uint8_t x, uint8_t y)
-{
-    uint8_t hue = HUE_REVIEW;
-    if (lessons > 0)
-        hue = HUE_LESSON;
-    else if (reviews > 0)
-        hue = HUE_REVIEW;
-    else
-        return false;
-    
-}*/
-
-uint8_t Led::randomizeHue(uint8_t hue)
-{
-    return hue + random(-hueRandomness, hueRandomness+1);
-}
-
-/**
  * Fade to targetHue smoothly. 
  * pixel is a pointer to the individual pixel from Fastled led matrix.
  * If pixel is off, fades it to on at that hue from the beginning.
@@ -250,6 +228,8 @@ void Led::lightLed(CRGB* led, int16_t* count, const uint8_t hue, uint8_t core)
 
 void Led::lightLeds(int16_t reviews, int16_t lessons)
 {
+    // LEGACY
+    Serial.println("--- lightLeds legacy function ---");
     if (reviews < 0 && lessons < 0)
         return;
 
@@ -274,11 +254,11 @@ void Led::lightLeds(int16_t reviews, int16_t lessons)
         {
             if (lessonLeds > 0)
             {
-                lightLed(&leds[ XY(xIterOrder[x], y) ], &lessonLeds, randomizeHue(HUE_LESSON), lessonLeds%2);
+                // lightLed(&leds[ XY(xIterOrder[x], y) ], &lessonLeds, randomizeHue(HUE_LESSON), lessonLeds%2);
             }
             else if (reviewLeds > 0)
             {
-                lightLed(&leds[ XY(xIterOrder[x], y) ], &reviewLeds, randomizeHue(HUE_REVIEW), lessonLeds%2);
+                //lightLed(&leds[ XY(xIterOrder[x], y) ], &reviewLeds, randomizeHue(HUE_REVIEW), lessonLeds%2);
             }
             else
             {

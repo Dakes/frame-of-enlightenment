@@ -35,10 +35,6 @@ private:
     const bool kMatrixSerpentineLayout = true;
     const bool kMatrixVertical = false;
 
-    #define HUE_LESSON 220  // pink-ish 320°: 227
-    #define HUE_REVIEW 142  // cyan-ish 200°: 142
-    const uint8_t hueRandomness = 25;  // add a random value between +- this to the hue, for some variation
-
     // at how many Reviews+Lessons the frame should fully light up
     const uint16_t frameFull = 1000;
     // Whether to fill the frame logarithmically or linearly
@@ -73,7 +69,6 @@ private:
     void lightLessons(uint16_t lessons);
     void lightReviews(uint16_t reviews);
     void printLeds();
-    uint8_t randomizeHue(uint8_t hue);
     void fadeToHue(CRGB* pixel, uint8_t targetHue);
     void fadeOn(CRGB* pixel, uint8_t hue);
     void fadeOff(CRGB* pixel);
