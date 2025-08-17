@@ -35,7 +35,7 @@ private:
 
     #define HUE_LESSON 220  // pink-ish 320°: 227
     #define HUE_REVIEW 142  // cyan-ish 200°: 142
-    const uint8_t hueRandomness = 15;  // add a random value between +- this to the hue, for some variation
+    const uint8_t hueRandomness = 25;  // add a random value between +- this to the hue, for some variation
 
     // at how many Reviews+Lessons the frame should fully light up
     const uint16_t frameFull = 1000;
