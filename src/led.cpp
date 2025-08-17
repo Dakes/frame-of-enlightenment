@@ -2,13 +2,29 @@
 
 Led::Led()
 {
+}
+
+void Led::begin()
+{
     this->setup();
 }
 
 void Led::setup()
 {
+    Serial.println("\n--- LED Setup ---");
+    Serial.print("Initializing FastLED with ");
+    Serial.print(NUM_LEDS);
+    Serial.print(" LEDs on pin ");
+    Serial.println(DATA_PIN);
+    
     FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
     FastLED.clear();
+    FastLED.show(); // Explicitly show the cleared state
+    
+    Serial.println("LED setup complete");
+    
+    // Set a lower brightness to start
+    FastLED.setBrightness(128);
 }
 
 uint16_t Led::XY(uint8_t x, uint8_t y)
@@ -97,7 +113,7 @@ uint16_t Led::scaleToLeds(uint16_t num, bool linear)
 */
 void Led::lightLessons(uint16_t lessons)
 {
-    uint16_t ledsToLight = scaleToLeds(lessons);
+    scaleToLeds(lessons);
 }
 
 void Led::printLeds()

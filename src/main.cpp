@@ -20,7 +20,9 @@ Led led = Led();
 void setup()
 {
     // put your setup code here, to run once:
-    Serial.begin(9600);
+    Serial.begin(115200);
+    Serial.printf("Reset reason: %d\n", (int)esp_reset_reason());
+    delay(500);
     Serial.println("Welcome to the Frame of Enlightenment");
     // delay(200);
     // int result = myFunction(2, 3);
@@ -28,6 +30,7 @@ void setup()
     Serial.println((String)"FreeHeap: " + ESP.getFreeHeap()/1024);
 
     sleep(1);
+    led.begin();
 }
 
 /*

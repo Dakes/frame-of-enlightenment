@@ -18,6 +18,10 @@ private:
     #define V 255
     // Animation delay in ms
     #define ANIM_DELAY 10
+    // Animation delay for falling pixels
+    #define FALL_DELAY 50
+    // Animation delay for hourglass fill
+    #define FILL_DELAY 30
 
 
     // See: https://github.com/FastLED/FastLED/blob/master/examples/XYMatrix/XYMatrix.ino for details about the options
@@ -25,7 +29,6 @@ private:
     #define MATRIX_HEIGHT 10  // adjust
 
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)
-    CRGB leds[NUM_LEDS];
     #define LAST_VISIBLE_LED (NUM_LEDS - 1)
     const bool kMatrixSerpentineLayout = true;
     const bool kMatrixVertical = false;
@@ -60,9 +63,6 @@ private:
         return arr;
     }
     const uint8_t* xIterOrder = genXIterOrder();
-
-    
-    uint16_t XY(uint8_t x, uint8_t y);
     
 
     void setup();
@@ -91,8 +91,18 @@ private:
 
 public:
     Led();
+    void begin();
     void loop();
     void lightLeds(int16_t reviews, int16_t lessons);
+    void animateUpcomingReviews(int16_t reviews1h, int16_t reviews2h, int16_t reviews3h, int16_t reviews4h, int16_t reviews5h);
+    void clearAll();
+    uint16_t XY(uint8_t x, uint8_t y);
+    CRGB leds[NUM_LEDS]; // LED array
+    
+    // Helper methods for direct LED manipulation
+    void setPixelColor(uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b);
+    void showLeds();
+    void testPattern();
     
 };
 

@@ -4,7 +4,6 @@
 WaniKani::WaniKani(const char* apiKey)
 {
     this->apiKey = apiKey;
-    // this->refresh();
 }
 
 /**
