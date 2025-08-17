@@ -5,6 +5,8 @@
 #include <FastLED.h>
 #include "utils.h"
 
+class Matrix; // forward declaration
+
 class Led {
 
 private:
@@ -63,7 +65,7 @@ private:
         return arr;
     }
     const uint8_t* xIterOrder = genXIterOrder();
-    
+
 
     void setup();
     uint16_t scaleToLeds(uint16_t num);
@@ -98,12 +100,13 @@ public:
     void clearAll();
     uint16_t XY(uint8_t x, uint8_t y);
     CRGB leds[NUM_LEDS]; // LED array
-    
+
     // Helper methods for direct LED manipulation
     void setPixelColor(uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b);
     void showLeds();
     void testPattern();
-    
+    void displayMatrix(const Matrix& matrix);
+
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "led.h"
+#include "matrix.h"
 
 Led::Led()
 {
@@ -294,5 +295,27 @@ void Led::lightLeds(int16_t reviews, int16_t lessons)
     // leds[ XY(2, 2) ].setHSV(HUE_LESSON, 255, 255);
 
     // printLeds();
+    FastLED.show();
+}
+
+void Led::displayMatrix(const Matrix& matrix)
+{
+    for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
+    {
+        for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
+        {
+            Cell cell = matrix.getCell(x, y);
+            CRGB color = CRGB::Black;
+            if (cell.type == CELL_LESSON)
+            {
+                color.setHSV(HUE_LESSON, S, V);
+            }
+            else if (cell.type == CELL_REVIEW)
+            {
+                color.setHSV(HUE_REVIEW, S, V);
+            }
+            leds[XY(x, y)] = color;
+        }
+    }
     FastLED.show();
 }

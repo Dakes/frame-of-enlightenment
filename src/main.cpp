@@ -8,6 +8,7 @@
 #include "wanikani.h"
 #include "utils.h"
 #include "led.h"
+#include "matrix.h"
 
 // configure WiFi etc. in config.h
 
@@ -16,6 +17,7 @@ int16_t lastReviews = -1;
 int16_t lastLessons = -1;
 WaniKani wk(API_KEY);
 Led led = Led();
+Matrix matrix;
 
 void setup()
 {
@@ -69,7 +71,22 @@ void loop()
     Serial.println((String)"FreeHeap: " + ESP.getFreeHeap()/1024);
 
     Serial.println();
-    led.lightLeds(wk.getReviews(), wk.getLessons());
+
+    matrix.clear();
+    int idx = 0;
+    auto place = [&](CellType type, uint32_t availableAt, int count)
+    {
+        for (int i = 0; i < count && idx < MATRIX_WIDTH * MATRIX_HEIGHT; ++i, ++idx)
+        {
+            uint8_t x = idx % MATRIX_WIDTH;
+            uint8_t y = idx / MATRIX_WIDTH;
+            matrix.setCell(x, y, type, availableAt);
+        }
+    };
+    place(CELL_LESSON, 0, wk.getLessons());
+    place(CELL_REVIEW, 0, wk.getReviews());
+    place(CELL_REVIEW, 1, wk.getReviews(1));
+    led.displayMatrix(matrix);
 
     // sleep(10);
 }
