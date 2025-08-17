@@ -284,13 +284,13 @@ void Led::displayMatrix(const Matrix& matrix)
     {
         for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
         {
-            Cell cell = matrix.getCell(x, y);
+            const Cell* cell = matrix.getCell(x, y);
             CRGB color = CRGB::Black;
-            if (cell.type == CELL_LESSON)
+            if (cell->type == CELL_LESSON)
             {
                 color.setHSV(HUE_LESSON, S, V);
             }
-            else if (cell.type == CELL_REVIEW)
+            else if (cell->type == CELL_REVIEW)
             {
                 color.setHSV(HUE_REVIEW, S, V);
             }

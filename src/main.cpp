@@ -33,6 +33,41 @@ void setup()
 
     sleep(1);
     led.begin();
+
+
+    matrix.clear();
+
+    // test sets
+    matrix.setCell(Coord(0, 0), CELL_REVIEW, 0);
+    matrix.setCell(Coord(1, 1), CELL_REVIEW, 0);
+    matrix.setCell(Coord(2, 5), CELL_REVIEW, 0);
+    matrix.setCell(Coord(3, 6), CELL_LESSON, 0);
+    matrix.setCell(Coord(3, 10), CELL_LESSON, 0);
+    matrix.setCell(Coord(3, 9), CELL_LESSON, 0);
+    matrix.setCell(Coord(3, 8), CELL_LESSON, 0);
+    matrix.setCell(Coord(3, 7), CELL_LESSON, 0);
+    matrix.setCell(Coord(3, 6), CELL_LESSON, 0);
+    matrix.setCell(Coord(3, 5), CELL_LESSON, 0);
+    matrix.setCell(Coord(3, 4), CELL_LESSON, 0);
+    matrix.setCell(Coord(3, 3), CELL_LESSON, 0);
+
+    matrix.setCell(Coord(2, 10),CELL_REVIEW , 0);
+    matrix.setCell(Coord(2, 9),CELL_REVIEW , 0);
+    matrix.setCell(Coord(2, 8),CELL_REVIEW , 0);
+    matrix.setCell(Coord(2, 7),CELL_REVIEW , 0);
+    matrix.setCell(Coord(2, 6),CELL_REVIEW , 0);
+    matrix.setCell(Coord(2, 5),CELL_REVIEW , 0);
+    matrix.setCell(Coord(2, 4),CELL_REVIEW , 0);
+    matrix.setCell(Coord(2, 3),CELL_REVIEW , 0);
+
+    matrix.setCell(Coord(1, 10), CELL_LESSON, 0);
+    matrix.setCell(Coord(1, 9), CELL_LESSON, 0);
+    matrix.setCell(Coord(1, 8), CELL_LESSON, 0);
+    matrix.setCell(Coord(1, 7), CELL_LESSON, 0);
+    matrix.setCell(Coord(1, 6), CELL_LESSON, 0);
+    matrix.setCell(Coord(1, 5), CELL_LESSON, 0);
+    matrix.setCell(Coord(1, 4), CELL_LESSON, 0);
+    matrix.setCell(Coord(1, 3), CELL_LESSON, 0);
 }
 
 
@@ -77,19 +112,11 @@ void loop()
 
     Serial.println();
 
-    matrix.clear();
-    int idx = 0;
-
-    // test sets
-    matrix.setCell(0, 0, CELL_REVIEW, 0);
-    matrix.setCell(1, 1, CELL_REVIEW, 0);
-    matrix.setCell(2, 5, CELL_REVIEW, 0);
-    matrix.setCell(3, 6, CELL_LESSON, 0);
 
     matrix.simulationStep();
 
     led.displayMatrix(matrix);
 
-    delay(33);
+    delay(500);
 }
 

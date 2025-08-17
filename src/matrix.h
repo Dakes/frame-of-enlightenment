@@ -11,6 +11,12 @@ enum CellType
     CELL_REVIEW
 };
 
+struct Coord
+{
+    Coord(uint8_t x, uint8_t y) : x(x), y(y) {}
+    uint8_t x, y;
+};
+
 struct Cell
 {
     CellType type = CELL_EMPTY;
@@ -23,17 +29,25 @@ class Matrix
 public:
     Matrix();
     void clear();
-    void setCell(uint8_t x, uint8_t y, CellType type, uint32_t availableAt);
-    Cell getCell(uint8_t x, uint8_t y) const;
-    uint8_t width() const { return MATRIX_WIDTH; }
-    uint8_t height() const { return MATRIX_HEIGHT; }
+    void setCell(Coord coord, CellType type, uint32_t availableAt);
+    Cell* getCell(Coord coord);
+    Cell* getCell(uint8_t x, uint8_t y);
+    const Cell* getCell(Coord coord) const;
+    const Cell* getCell(uint8_t x, uint8_t y) const;
+    static uint8_t width() { return MATRIX_WIDTH; }
+    static uint8_t height() { return MATRIX_HEIGHT; }
     void simulationStep();
 
 private:
     #define HUE_LESSON 220  // pink-ish 320°: 227
     #define HUE_REVIEW 142  // cyan-ish 200°: 142
     const uint8_t hueRandomness = 50;  // add a random value between +- this to the hue, for some variation
+    // 0, 0 is bottom left
     Cell cells[MATRIX_WIDTH][MATRIX_HEIGHT];
+    void generalCellLogic(Coord coord);
+    void lessonCellLogic(Coord coord);
+    void reviewCellLogic(Coord coord);
+
 };
 
 #endif
