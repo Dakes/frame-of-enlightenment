@@ -125,6 +125,8 @@ int16_t WaniKani::getReviews(uint8_t hour)
         return 15;
     if (hour == 23)
         return 5;
+    if (hour == 24)
+        return 10;
     if (hour == 0)
         return this->reviews;
     else

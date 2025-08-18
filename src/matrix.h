@@ -5,6 +5,8 @@
 #include "led.h"
 #include "wanikani.h"
 
+#define ONE_TO_ONE_HOURS 3  // number of pixels to light for 1 hour, rest will be squished to 24h
+
 enum CellType
 {
     CELL_EMPTY,
@@ -29,7 +31,7 @@ struct Cell
 class Matrix
 {
 public:
-    Matrix();
+    Matrix(WaniKani* wk);
     void clear();
     void setCell(Coord coord, CellType type, uint8_t value);
     void setCell(Coord coord, CellType type);
@@ -41,15 +43,17 @@ public:
     static uint8_t height() { return MATRIX_HEIGHT; }
     void simulationStep();
 
-    void updateReviewFutureRow(WaniKani wk);
+    void updateReviewFutureRow();
 
 private:
+    WaniKani* wk;
     const uint8_t hueRandomness = 25;  // add a random value between +- this to the hue, for some variation
     // 0, 0 is bottom left
     Cell cells[MATRIX_WIDTH][MATRIX_HEIGHT];
     void generalCellLogic(Coord coord);
     void lessonCellLogic(Coord coord);
     void reviewCellLogic(Coord coord);
+    uint16_t getScaledFutureReview(uint8_t x);
 
 };
 

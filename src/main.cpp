@@ -17,7 +17,7 @@ int16_t lastReviews = -1;
 int16_t lastLessons = -1;
 WaniKani wk(API_KEY);
 Led led = Led();
-Matrix matrix;
+Matrix matrix = Matrix(&wk);
 
 void setup()
 {
@@ -114,7 +114,7 @@ void loop()
 
 
     matrix.simulationStep();
-    matrix.updateReviewFutureRow(wk);
+    matrix.updateReviewFutureRow();
 
     led.displayMatrix(matrix);
 

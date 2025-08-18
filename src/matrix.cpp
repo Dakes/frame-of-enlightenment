@@ -1,8 +1,8 @@
 #include "matrix.h"
 
-Matrix::Matrix()
+Matrix::Matrix(WaniKani* wk)
 {
-    clear();
+    this->wk = wk;
 }
 
 void Matrix::clear()
@@ -138,31 +138,53 @@ void Matrix::reviewCellLogic(Coord coord)
 
 }
 
-// Code for top row for future Reviews
-
-void Matrix::updateReviewFutureRow(WaniKani wk)
+/**
+ * Code for top row for future Reviews
+ */
+void Matrix::updateReviewFutureRow()
 {
+    // only do computation if source data changed
     ulong static lastUpdate = 0;
-    if (wk.lastRequestTime <= lastUpdate)
+    if (wk->lastRequestTime <= lastUpdate)
         return;
     lastUpdate = millis();
 
+    // get max reviews for all future hours to normalize the brightness
     uint16_t maxReviews = 0;
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
     {
-        uint16_t reviewsHour = wk.getReviews(x+1);
+        uint16_t reviewsHour = this->getScaledFutureReview(x);
         if (reviewsHour > maxReviews)
             maxReviews = reviewsHour;
     }
 
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
     {
-        Serial.println(" x: " + String(x));
         Coord coord = Coord(x, MATRIX_HEIGHT-1);
-        uint16_t reviewsHour = wk.getReviews(x+1);
-        Serial.println(" reviewsHour: " + String(reviewsHour));
+        uint16_t reviewsHour =this->getScaledFutureReview(x);
         uint8_t normalizedBrightness = (reviewsHour * V) / maxReviews;
         this->setCell(coord, CELL_REVIEW_FUTURE, normalizedBrightness);
     }
+}
 
+/**
+ * Get number of reviews per pixel. can be multiple hours per pixel after ONE_TO_ONE_HOURS
+ * @param x coord
+ * @return number of reviews
+ */
+uint16_t Matrix::getScaledFutureReview(uint8_t x)
+{
+    if (x < ONE_TO_ONE_HOURS)
+        return wk->getReviews(x+1);
+
+    const uint8_t pixelsLeft = MATRIX_WIDTH - ONE_TO_ONE_HOURS;
+    const uint8_t hoursPerPixel =((24 - ONE_TO_ONE_HOURS) + pixelsLeft / 2) / pixelsLeft;
+
+    uint16_t reviewsPixel = 0;
+    uint8_t startHour = (x-ONE_TO_ONE_HOURS) * hoursPerPixel + ONE_TO_ONE_HOURS;
+    for (uint8_t hour = startHour; hour < startHour+hoursPerPixel; ++hour)
+    {
+        reviewsPixel += wk->getReviews(hour+1);
+    }
+    return reviewsPixel;
 }
