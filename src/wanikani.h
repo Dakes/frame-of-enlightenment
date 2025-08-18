@@ -10,7 +10,7 @@
 class WaniKani {
 private:
     // minimum time between requests to API in minutes
-    const uint8_t MIN = 0;
+    const uint8_t MIN = 1;
     static const uint16_t SUMMARY_JSON_SIZE = 32768;
 
     int16_t reviews = -1;
@@ -18,7 +18,6 @@ private:
     const char* apiKey;
     const char* WK_API_URL = "https://api.wanikani.com/v2/";
     bool apiRequest(String apiUrl, DynamicJsonDocument* json);
-    int16_t apiAssignmentsRequest(String apiParameter);
     DynamicJsonDocument* apiSummaryRequest();
     int16_t getSummaryLessons();
     int16_t getSummaryReviews(uint8_t hour=0);
@@ -34,6 +33,7 @@ public:
     int16_t getReviews(uint8_t hour);
     int16_t getLessons();
     void refresh();
+    ulong lastRequestTime = 0;
 };
 
 #endif

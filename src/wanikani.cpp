@@ -15,15 +15,10 @@ bool WaniKani::apiRequest(String apiUrl, DynamicJsonDocument* json)
     bool success = false;
     if (Utils::WiFiConnected())
     {
-        // StaticJsonDocument<64> filter;
-        // filter["total_count"] = true;
-
-        // DynamicJsonDocument json(jsonSize);
-
         DeserializationError error = deserializeJson(
             (*json), 
             Utils::httpGETRequest(apiUrl, "Authorization", String("Bearer ") + this->apiKey)
-        );//, DeserializationOption::Filter(filter));
+        );
 
         if (error)
         {
@@ -38,26 +33,9 @@ bool WaniKani::apiRequest(String apiUrl, DynamicJsonDocument* json)
 
 }
 
-// on Error returns -1
-// ! @deprecated
-int16_t WaniKani::apiAssignmentsRequest(String apiParameter)
-{
-    int16_t count = -1;
-    String apiUrl = this->WK_API_URL + (String)"assignments" + apiParameter;
-    DynamicJsonDocument json(1024);
-    this->apiRequest(apiUrl, &json);
-    /*
-    
-    if (!json.isNull() )
-        count = json["total_count"];*/
-
-    return count;
-}
-
 DynamicJsonDocument* WaniKani::apiSummaryRequest()
 {
     static DynamicJsonDocument cachedRequest(SUMMARY_JSON_SIZE);
-    static ulong lastRequestTime = 0;
 
     if (this->canRequest(lastRequestTime) && Utils::WiFiConnected())
     {
@@ -115,6 +93,11 @@ int16_t WaniKani::getSummaryLessons()
 
 }
 
+/**
+ *
+ * @param hour represents how many hours in the future the reviews appear. can be up to 24
+ * @return number of reviews at that hour
+ */
 int16_t WaniKani::getSummaryReviews(uint8_t hour)
 {
     if (!this->apiSummaryRequest()->isNull())
@@ -130,6 +113,18 @@ int16_t WaniKani::getReviews()
 
 int16_t WaniKani::getReviews(uint8_t hour)
 {
+    if (hour == 1)
+        return 5;
+    if (hour == 2)
+        return 10;
+    if (hour == 10)
+        return 20;
+    if (hour == 11)
+        return 22;
+    if (hour == 12)
+        return 15;
+    if (hour == 23)
+        return 5;
     if (hour == 0)
         return this->reviews;
     else

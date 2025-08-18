@@ -5,6 +5,10 @@
 #include <FastLED.h>
 #include "utils.h"
 
+#define HUE_LESSON 220          // pink-ish 320°: 227
+#define HUE_REVIEW 142          // cyan-ish 200°: 142
+#define HUE_REVIEW_FUTURE 35    // orange
+
 class Matrix; // forward declaration
 
 class Led {

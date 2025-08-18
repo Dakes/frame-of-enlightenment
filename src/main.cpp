@@ -114,6 +114,7 @@ void loop()
 
 
     matrix.simulationStep();
+    matrix.updateReviewFutureRow(wk);
 
     led.displayMatrix(matrix);
 

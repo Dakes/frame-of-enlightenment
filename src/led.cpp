@@ -294,6 +294,10 @@ void Led::displayMatrix(const Matrix& matrix)
             {
                 color.setHSV(HUE_REVIEW, S, V);
             }
+            else if (cell->type == CELL_REVIEW_FUTURE)
+            {
+                color.setHSV(HUE_REVIEW_FUTURE, S, cell->value);
+            }
             leds[XY(x, y)] = color;
         }
     }

@@ -12,19 +12,22 @@ void Matrix::clear()
             cells[x][y] = Cell();
 }
 
-void Matrix::setCell(Coord coord, CellType type, uint32_t availableAt)
+void Matrix::setCell(Coord coord, CellType type, uint8_t value)
 {
     const uint8_t x = coord.x;
     const uint8_t y = coord.y;
     if (x >= MATRIX_WIDTH || y >= MATRIX_HEIGHT)
         return;
     cells[x][y].type = type;
-    cells[x][y].availableAt = availableAt;
-    Serial.println(cells[x][y].hue);
+    cells[x][y].value = value;
     cells[x][y].hue = type == CELL_LESSON ? HUE_LESSON : HUE_REVIEW;
-    Serial.println(cells[x][y].hue);
     cells[x][y].hue += random(-hueRandomness, hueRandomness+1);
-    Serial.println(cells[x][y].hue);
+}
+
+
+void Matrix::setCell(Coord coord, CellType type)
+{
+    this->setCell(coord, type, V);
 }
 
 Cell* Matrix::getCell(uint8_t x, uint8_t y)
@@ -79,7 +82,7 @@ void Matrix::simulationStep()
 void Matrix::generalCellLogic(Coord coord)
 {
     Cell* cur = getCell(coord);
-    if (!cur || cur->type == CELL_EMPTY)
+    if (!cur || cur->type == CELL_EMPTY || cur->type == CELL_REVIEW_FUTURE)
         return;
 
     const uint8_t x = coord.x;
@@ -132,5 +135,34 @@ void Matrix::lessonCellLogic(Coord coord)
 
 void Matrix::reviewCellLogic(Coord coord)
 {
+
+}
+
+// Code for top row for future Reviews
+
+void Matrix::updateReviewFutureRow(WaniKani wk)
+{
+    ulong static lastUpdate = 0;
+    if (wk.lastRequestTime <= lastUpdate)
+        return;
+    lastUpdate = millis();
+
+    uint16_t maxReviews = 0;
+    for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
+    {
+        uint16_t reviewsHour = wk.getReviews(x+1);
+        if (reviewsHour > maxReviews)
+            maxReviews = reviewsHour;
+    }
+
+    for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
+    {
+        Serial.println(" x: " + String(x));
+        Coord coord = Coord(x, MATRIX_HEIGHT-1);
+        uint16_t reviewsHour = wk.getReviews(x+1);
+        Serial.println(" reviewsHour: " + String(reviewsHour));
+        uint8_t normalizedBrightness = (reviewsHour * V) / maxReviews;
+        this->setCell(coord, CELL_REVIEW_FUTURE, normalizedBrightness);
+    }
 
 }

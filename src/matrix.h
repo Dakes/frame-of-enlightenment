@@ -3,12 +3,14 @@
 
 #include <Arduino.h>
 #include "led.h"
+#include "wanikani.h"
 
 enum CellType
 {
     CELL_EMPTY,
     CELL_LESSON,
-    CELL_REVIEW
+    CELL_REVIEW,
+    CELL_REVIEW_FUTURE
 };
 
 struct Coord
@@ -20,8 +22,8 @@ struct Coord
 struct Cell
 {
     CellType type = CELL_EMPTY;
-    uint32_t availableAt = 0;  // hour when available
     u8_t hue = 0;  // hue of the color, because the hue varies for a better visual effect
+    uint8_t value = V;  // brightness value. mostly used for the future row
 };
 
 class Matrix
@@ -29,7 +31,8 @@ class Matrix
 public:
     Matrix();
     void clear();
-    void setCell(Coord coord, CellType type, uint32_t availableAt);
+    void setCell(Coord coord, CellType type, uint8_t value);
+    void setCell(Coord coord, CellType type);
     Cell* getCell(Coord coord);
     Cell* getCell(uint8_t x, uint8_t y);
     const Cell* getCell(Coord coord) const;
@@ -38,10 +41,10 @@ public:
     static uint8_t height() { return MATRIX_HEIGHT; }
     void simulationStep();
 
+    void updateReviewFutureRow(WaniKani wk);
+
 private:
-    #define HUE_LESSON 220  // pink-ish 320°: 227
-    #define HUE_REVIEW 142  // cyan-ish 200°: 142
-    const uint8_t hueRandomness = 50;  // add a random value between +- this to the hue, for some variation
+    const uint8_t hueRandomness = 25;  // add a random value between +- this to the hue, for some variation
     // 0, 0 is bottom left
     Cell cells[MATRIX_WIDTH][MATRIX_HEIGHT];
     void generalCellLogic(Coord coord);
