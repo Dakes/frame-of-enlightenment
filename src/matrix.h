@@ -6,6 +6,11 @@
 #include "wanikani.h"
 
 #define ONE_TO_ONE_HOURS 3  // number of pixels to light for 1 hour, rest will be squished to 24h
+#define MATRIX_SIMULATION_FPS 3
+
+
+#define MATRIX_SIMULATION_MILLIS (1000 / MATRIX_SIMULATION_FPS)
+#define MATRIX_STEP_FRAMES (MATRIX_SIMULATION_MILLIS / MILLIS_PER_FRAME)
 
 enum CellType
 {
@@ -47,7 +52,7 @@ public:
 
 private:
     WaniKani* wk;
-    const uint8_t hueRandomness = 25;  // add a random value between +- this to the hue, for some variation
+    const uint8_t hueRandomness = 15;  // add a random value between +- this to the hue, for some variation
     // 0, 0 is bottom left
     Cell cells[MATRIX_WIDTH][MATRIX_HEIGHT];
     void generalCellLogic(Coord coord);

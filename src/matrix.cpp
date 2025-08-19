@@ -20,7 +20,14 @@ void Matrix::setCell(Coord coord, CellType type, uint8_t value)
         return;
     cells[x][y].type = type;
     cells[x][y].value = value;
-    cells[x][y].hue = type == CELL_LESSON ? HUE_LESSON : HUE_REVIEW;
+    switch (type) {
+        case CELL_LESSON:        cells[x][y].hue= HUE_LESSON; break;
+        case CELL_REVIEW:        cells[x][y].hue= HUE_REVIEW; break;
+        case CELL_REVIEW_FUTURE: cells[x][y].hue= HUE_REVIEW_FUTURE; break;
+        case CELL_EMPTY:
+        default:                 cells[x][y].hue = 0; break;
+    }
+
     cells[x][y].hue += random(-hueRandomness, hueRandomness+1);
 }
 
@@ -60,6 +67,11 @@ const Cell* Matrix::getCell(Coord coord) const
  */
 void Matrix::simulationStep()
 {
+    static uint8_t calls = 0;
+    calls++;
+    if (calls < MATRIX_STEP_FRAMES)
+        return;
+
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
     {
         for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
@@ -77,6 +89,7 @@ void Matrix::simulationStep()
             }
         }
     }
+    calls = 0;
 }
 
 void Matrix::generalCellLogic(Coord coord)

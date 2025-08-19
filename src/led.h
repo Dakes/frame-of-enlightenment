@@ -27,10 +27,14 @@ private:
     #define S 255
     // HSV value (brightness / Luma)
     #define V 255
+
+    #define FRAMERATE 60
+    #define MILLIS_PER_FRAME (1000 / FRAMERATE)
     // Animation delay in ms
     #define ANIM_DELAY 10
     // Animation delay for hourglass fill
     #define SPAWN_DELAY 1000
+
 
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)
     #define LAST_VISIBLE_LED (NUM_LEDS - 1)

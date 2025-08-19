@@ -17,13 +17,13 @@ void Led::setup()
     Serial.print(NUM_LEDS);
     Serial.print(" LEDs on pin ");
     Serial.println(DATA_PIN);
-    
+
     FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
     FastLED.clear();
     FastLED.show(); // Explicitly show the cleared state
-    
+
     Serial.println("LED setup complete");
-    
+
     // Set a lower brightness to start
     FastLED.setBrightness(128);
 }
@@ -50,11 +50,12 @@ uint16_t Led::XY(uint8_t x, uint8_t y)
                 uint8_t reverseX = (MATRIX_WIDTH - 1) - x;
                 i = (y * MATRIX_WIDTH) + reverseX;
             }
-            else  // Even rows run forwards
+            else // Even rows run forwards
                 i = (y * MATRIX_WIDTH) + x;
         }
         else
-        { // vertical positioning
+        {
+            // vertical positioning
             if (x & 0x01)
                 i = MATRIX_HEIGHT * (MATRIX_WIDTH - (x + 1)) + y;
             else
@@ -67,12 +68,12 @@ uint16_t Led::XY(uint8_t x, uint8_t y)
 
 void Led::loop()
 {
-    for( uint8_t x = 0; x < MATRIX_WIDTH; x++)
+    for (uint8_t x = 0; x < MATRIX_WIDTH; x++)
     {
-        for( uint8_t y = 0; y < MATRIX_HEIGHT; y++)
+        for (uint8_t y = 0; y < MATRIX_HEIGHT; y++)
         {
-            // Here's the x, y to 'led index' in action: 
-            leds[ XY(x, y) ].setHSV(random8(), 255, 255);
+            // Here's the x, y to 'led index' in action:
+            leds[XY(x, y)].setHSV(random8(), 255, 255);
 
             FastLED.show();
             delay(100);
@@ -80,19 +81,18 @@ void Led::loop()
     }
     delay(500);
     FastLED.clear();
-
 }
 
 void Led::printLeds()
 {
     Serial.println("Led matrix: ");
-    for( uint8_t y = MATRIX_HEIGHT; y > 0; y--)
+    for (uint8_t y = MATRIX_HEIGHT; y > 0; y--)
     {
-        for( uint8_t x = 0; x < MATRIX_WIDTH; x++)
+        for (uint8_t x = 0; x < MATRIX_WIDTH; x++)
         {
-            int led = leds[ XY(x, y) ][0]+leds[ XY(x, y) ][1]+leds[ XY(x, y) ][2]+leds[ XY(x, y) ][3];
-            if (led<10) Serial.print(" ");
-            if (led<100) Serial.print(" ");
+            int led = leds[XY(x, y)][0] + leds[XY(x, y)][1] + leds[XY(x, y)][2] + leds[XY(x, y)][3];
+            if (led < 10) Serial.print(" ");
+            if (led < 100) Serial.print(" ");
             Serial.print(led);
             Serial.print("|");
         }
@@ -102,25 +102,25 @@ void Led::printLeds()
 }
 
 /**
- * Fade to targetHue smoothly. 
+ * Fade to targetHue smoothly.
  * pixel is a pointer to the individual pixel from Fastled led matrix.
  * If pixel is off, fades it to on at that hue from the beginning.
 */
 void Led::fadeToHue(CRGB* pixel, uint8_t targetHue)
 {
-    if(pixel->getLuma() == 0)
+    if (pixel->getLuma() == 0)
         fadeOn(pixel, targetHue);
     else
     {
         CHSV hsvPix(rgb2hsv_approximate(*pixel));
-        while(hsvPix.hue != targetHue)
+        while (hsvPix.hue != targetHue)
         {
             if (hsvPix.hue < targetHue)
-                hsvPix.hue ++;
+                hsvPix.hue++;
             else
-                hsvPix.hue --;
+                hsvPix.hue--;
             pixel->setHue(hsvPix.hue);
-            show(ANIM_DELAY*3);
+            show(ANIM_DELAY * 3);
         }
     }
 }
@@ -128,9 +128,9 @@ void Led::fadeToHue(CRGB* pixel, uint8_t targetHue)
 
 void Led::fadeOff(CRGB* pixel)
 {
-    const uint8_t fading = 10;//pixel->getLuma();
+    const uint8_t fading = 10; //pixel->getLuma();
     uint8_t prevLuma = 0;
-    while(pixel->getLuma() > 0)
+    while (pixel->getLuma() > 0)
     {
         if (prevLuma == pixel->getLuma())
         {
@@ -145,20 +145,19 @@ void Led::fadeOff(CRGB* pixel)
         pixel->fadeToBlackBy(fading);
         show();
     }
-
 }
 
 void Led::fadeOn(CRGB* pixel, u8_t hue)
 {
-    if (pixel->getAverageLight() > V/4)
+    if (pixel->getAverageLight() > V / 4)
         return;
     pixel->setHue(hue);
-    
-    for(int v=0; v<V; v+=20)
+
+    for (int v = 0; v < V; v += 20)
     {
-        if (v>V) v=V;
+        if (v > V) v = V;
         pixel->setHSV(hue, S, v);
-        show(ANIM_DELAY/2);
+        show(ANIM_DELAY / 2);
     }
     pixel->setHSV(hue, S, V);
 }
@@ -180,26 +179,30 @@ void Led::show(u16_t delay)
 
 void Led::displayMatrix(const Matrix& matrix)
 {
+    static CRGB target[NUM_LEDS];
+
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
     {
         for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
         {
             const Cell* cell = matrix.getCell(x, y);
-            CRGB color = CRGB::Black;
-            if (cell->type == CELL_LESSON)
+            CRGB c = CRGB::Black;
+            if (cell->type != CELL_EMPTY)
             {
-                color.setHSV(HUE_LESSON, S, V);
+                c.setHSV(cell->hue, S, cell->value);
             }
-            else if (cell->type == CELL_REVIEW)
+            else
             {
-                color.setHSV(HUE_REVIEW, S, V);
+                c = CRGB::Black;
             }
-            else if (cell->type == CELL_REVIEW_FUTURE)
-            {
-                color.setHSV(HUE_REVIEW_FUTURE, S, cell->value);
-            }
-            leds[XY(x, y)] = color;
+            target[XY(x, y)] = c;
         }
+    }
+
+    // Move a fixed fraction (e.g. 64/255 ≈ 25%) toward target each call.
+    for (uint16_t i = 0; i < NUM_LEDS; ++i)
+    {
+        nblend(leds[i], target[i], 32);
     }
     FastLED.show();
 }
