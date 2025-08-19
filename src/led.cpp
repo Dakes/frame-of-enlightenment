@@ -83,40 +83,6 @@ void Led::loop()
 
 }
 
-/**
- * Logarithmically or linearly scale num to number of LEDs
- * But doesn't actually scale logarithmically, but somewhere between log and linearly
-*/
-uint16_t Led::scaleToLeds(uint16_t num)
-{
-    return scaleToLeds(num, !logScaling);
-}
-
-uint16_t Led::scaleToLeds(uint16_t num, bool linear)
-{
-    if (num > frameFull)
-        num = frameFull;
-    if (logScaling)
-    {
-        uint16_t scaled = (int)(((pow(num, 0.5)*CONSTANT_SCALING_FACTOR)/(float)frameFull)*NUM_LEDS);
-        if (scaled > num)
-            return num;
-        return scaled;
-    }
-    else // linear
-    {
-        return (int)((num/(float)frameFull) * NUM_LEDS);
-    }
-}
-
-/**
- * @param lessons number of lessons
-*/
-void Led::lightLessons(uint16_t lessons)
-{
-    scaleToLeds(lessons);
-}
-
 void Led::printLeds()
 {
     Serial.println("Led matrix: ");
@@ -211,72 +177,6 @@ void Led::show(u16_t delay)
     FastLED.show();
 }
 
-
-/**
- * turn on this led at hue and reduce passed led count "count"
-*/
-void Led::lightLed(CRGB* led, int16_t* count, const uint8_t hue, uint8_t core)
-{
-    if (!count || *count <= 0) return;
-    fadeToHue(led, hue);
-    (*count)--;
-
-
-    // lightLed(params);
-}
-
-
-void Led::lightLeds(int16_t reviews, int16_t lessons)
-{
-    // LEGACY
-    Serial.println("--- lightLeds legacy function ---");
-    if (reviews < 0 && lessons < 0)
-        return;
-
-    static uint32_t prev = -1;
-
-    //if ((reviews < 0 && lessons < 0) || prev == Utils::pair(reviews, lessons))
-    //    return;
-    // used to skip this, if it was called last time with the same arguments
-    prev = Utils::pair(reviews, lessons);
-    
-    Serial.println("reviews & lessons: " + (String)reviews + " | " + (String)lessons);
-    uint16_t ledsToLight = scaleToLeds(reviews + lessons);
-    Serial.println("ledsToLight: " + (String)ledsToLight);
-    int16_t reviewLeds = reviews ? ((float)reviews/(float)(reviews+lessons)) * ledsToLight : 0;
-    int16_t lessonLeds = lessons ? ((float)lessons/(float)(reviews+lessons)) * ledsToLight : 0;
-    Serial.println("reviewLeds & lessonLeds: " + (String)reviewLeds + " | " + (String)lessonLeds);
-    
-    // fill from the middle to the outside
-    for( uint8_t y = 0; y < MATRIX_HEIGHT; y++)
-    {
-        for (uint8_t x=0; x < MATRIX_WIDTH; x++)
-        {
-            if (lessonLeds > 0)
-            {
-                // lightLed(&leds[ XY(xIterOrder[x], y) ], &lessonLeds, randomizeHue(HUE_LESSON), lessonLeds%2);
-            }
-            else if (reviewLeds > 0)
-            {
-                //lightLed(&leds[ XY(xIterOrder[x], y) ], &reviewLeds, randomizeHue(HUE_REVIEW), lessonLeds%2);
-            }
-            else
-            {
-                fadeOff(&leds[ XY(xIterOrder[x], y) ]);
-            }
-
-
-            // FastLED.show();
-            // delay(10);
-        }
-    }
-
-    // leds[ XY(1, 0) ].setHSV(HUE_REVIEW, 255, 255);
-    // leds[ XY(2, 2) ].setHSV(HUE_LESSON, 255, 255);
-
-    // printLeds();
-    FastLED.show();
-}
 
 void Led::displayMatrix(const Matrix& matrix)
 {

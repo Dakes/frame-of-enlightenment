@@ -9,6 +9,11 @@
 #define HUE_REVIEW 142          // cyan-ish 200°: 142
 #define HUE_REVIEW_FUTURE 35    // orange
 
+
+// See: https://github.com/FastLED/FastLED/blob/master/examples/XYMatrix/XYMatrix.ino for details about the options
+#define MATRIX_WIDTH  10  // adjust
+#define MATRIX_HEIGHT 10  // adjust
+
 class Matrix; // forward declaration
 
 class Led {
@@ -24,15 +29,8 @@ private:
     #define V 255
     // Animation delay in ms
     #define ANIM_DELAY 10
-    // Animation delay for falling pixels
-    #define FALL_DELAY 50
     // Animation delay for hourglass fill
-    #define FILL_DELAY 30
-
-
-    // See: https://github.com/FastLED/FastLED/blob/master/examples/XYMatrix/XYMatrix.ino for details about the options
-    #define MATRIX_WIDTH  10  // adjust
-    #define MATRIX_HEIGHT 10  // adjust
+    #define SPAWN_DELAY 1000
 
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)
     #define LAST_VISIBLE_LED (NUM_LEDS - 1)
@@ -40,38 +38,10 @@ private:
     const bool kMatrixVertical = false;
 
     // at how many Reviews+Lessons the frame should fully light up
-    const uint16_t frameFull = 1000;
-    // Whether to fill the frame logarithmically or linearly
-    // Use log scaling to make the frame more useful at low Review counts.
-    // actually scales linearly (1 Review = 1 LED) until intersection
-    bool logScaling = true;  // changeable
-    #define LOG_BASE (exp(log(frameFull)/frameFull))
-    #define CONSTANT_SCALING_FACTOR (frameFull/(pow(frameFull, 0.5)))
-
-    uint8_t* genXIterOrder()
-    {
-        uint8_t* arr = (uint8_t*) malloc(MATRIX_WIDTH * sizeof(uint8_t));
-        int i=0;
-        for (int m=0; m <= MATRIX_WIDTH/2; m++)
-        {
-            arr[i] = (MATRIX_WIDTH/2)-m;
-            i++;
-            if (m != 0 && (float)m != (float)MATRIX_WIDTH/2)
-            {
-                arr[i] = (MATRIX_WIDTH/2)+m;
-                i++;
-            }
-        }
-        return arr;
-    }
-    const uint8_t* xIterOrder = genXIterOrder();
-
+    const uint16_t frameFull = 700;
+    const uint16_t itemsPerPixel = frameFull / (MATRIX_WIDTH * MATRIX_HEIGHT);
 
     void setup();
-    uint16_t scaleToLeds(uint16_t num);
-    uint16_t scaleToLeds(uint16_t num, bool linear);
-    void lightLessons(uint16_t lessons);
-    void lightReviews(uint16_t reviews);
     void printLeds();
     void fadeToHue(CRGB* pixel, uint8_t targetHue);
     void fadeOn(CRGB* pixel, uint8_t hue);
@@ -86,9 +56,6 @@ private:
         uint8_t hue;
         Led* self;
     };
-    void lightLed(CRGB* led, int16_t* count, const uint8_t hue, uint8_t core=0);
-    static void lightLedMT(void* parameters);
-    // bool setLed(int16_t* reviews, int16_t* lessons, uint8_t x, uint8_t y);
 
 public:
     Led();
