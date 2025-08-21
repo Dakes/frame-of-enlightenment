@@ -72,6 +72,13 @@ private:
 
     ReviewLessonCounts getReviewLessonCounts() const;
 
+    // helper functions
+    Coord getRandomCellCoord(CellType type) const;
+    bool removeRandomCell(CellType type);
+    void spawnCellAtTop(CellType type, uint8_t value);
+    void setBrightnessOne(CellType type, uint8_t value);
+    void setBrightnessAll(CellType type, uint8_t value);
+
 
 };
 
