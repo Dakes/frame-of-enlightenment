@@ -103,9 +103,9 @@ void loop()
 
 
 
-        matrix.checkReviewLessonCounts();
         matrix.simulationStep();
         matrix.updateReviewFutureRow();
+        matrix.checkReviewLessonCounts();
 
         led.displayMatrix(matrix);
     }

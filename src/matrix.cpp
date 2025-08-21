@@ -245,13 +245,17 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
     bool rightFirst = random(2);
     for (uint8_t offset = 0; offset < MATRIX_WIDTH; ++offset) {
       int16_t x = startX + (rightFirst ? 1 : -1) * offset;
-      if (x >= 0 && x < MATRIX_WIDTH && cells[x][y].type == CELL_EMPTY) {
+      if (x >= 0 && x < MATRIX_WIDTH &&
+          (cells[x][y].type == CELL_EMPTY ||
+           cells[x][y].type == CELL_REVIEW_FUTURE)) {
         setCell(Coord(x, y), type, value);
         return;
       }
       if (offset != 0) {
         x = startX - (rightFirst ? 1 : -1) * offset;
-        if (x >= 0 && x < MATRIX_WIDTH && cells[x][y].type == CELL_EMPTY) {
+        if (x >= 0 && x < MATRIX_WIDTH &&
+            (cells[x][y].type == CELL_EMPTY ||
+             cells[x][y].type == CELL_REVIEW_FUTURE)) {
           setCell(Coord(x, y), type, value);
           return;
         }

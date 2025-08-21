@@ -8,6 +8,7 @@ void Utils::WifiConnect()
     WiFi.disconnect();
     delay(100);
 
+    WiFi.setHostname("WaniKani frame of enlightenment");
     WiFi.begin(WIFI_SSID, WIFI_PASS);
 
     Serial.println("Connecting to WiFi");
