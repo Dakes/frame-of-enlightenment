@@ -16,7 +16,7 @@ bool WaniKani::apiRequest(String apiUrl, DynamicJsonDocument* json)
     if (Utils::WiFiConnected())
     {
         DeserializationError error = deserializeJson(
-            (*json), 
+            (*json),
             Utils::httpGETRequest(apiUrl, "Authorization", String("Bearer ") + this->apiKey)
         );
 
@@ -30,7 +30,6 @@ bool WaniKani::apiRequest(String apiUrl, DynamicJsonDocument* json)
             success = true;
     }
     return success;
-
 }
 
 DynamicJsonDocument* WaniKani::apiSummaryRequest()
@@ -53,7 +52,7 @@ bool WaniKani::canRequest(ulong prev, ulong newTime)
 {
     if (prev <= 0)
         return true;
-    return (newTime-prev)/(1000*60) > this->MIN;
+    return (newTime - prev) / (1000 * 60) > this->MIN;
 }
 
 bool WaniKani::canRequest(ulong prev)
@@ -64,23 +63,34 @@ bool WaniKani::canRequest(ulong prev)
 int16_t WaniKani::setReviews()
 {
     int16_t reviews = this->getSummaryReviews();
+    static int16_t lastReviews = -1;
 
     if (reviews >= 0)
     {
         this->reviews = reviews;
-        Serial.println("Updated Reviews: " + (String)reviews);
+        if (lastReviews != reviews)
+        {
+            Serial.println("Updated Reviews: " + (String)reviews);
+            lastReviews = reviews;
+        }
     }
-    
+
     return this->reviews;
 }
 
 int16_t WaniKani::setLessons()
 {
     int16_t lessons = this->getSummaryLessons();
+    static int16_t lastLessons = -1;
+
     if (lessons >= 0)
     {
         this->lessons = lessons;
-        Serial.println("Updated Lessons: " + (String)lessons);
+        if (lastLessons != lessons)
+        {
+            Serial.println("Updated Lessons: " + (String)lessons);
+            lastLessons = lessons;
+        }
     }
     return this->lessons;
 }
@@ -90,7 +100,6 @@ int16_t WaniKani::getSummaryLessons()
     if (!this->apiSummaryRequest()->isNull())
         return (*this->apiSummaryRequest())["data"]["lessons"][0]["subject_ids"].size();
     return -1;
-
 }
 
 /**

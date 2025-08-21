@@ -201,3 +201,22 @@ uint16_t Matrix::getScaledFutureReview(uint8_t x)
     }
     return reviewsPixel;
 }
+
+
+ReviewLessonCounts Matrix::getReviewLessonCounts() const
+{
+    ReviewLessonCounts counts;
+
+    for (const auto & cell : cells)
+    {
+        for (auto c : cell)
+        {
+            if (c.type == CELL_LESSON)
+                ++counts.lessons;
+            else if (c.type == CELL_REVIEW)
+                ++counts.reviews;
+        }
+    }
+
+    return counts;
+}

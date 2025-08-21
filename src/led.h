@@ -38,12 +38,12 @@ private:
 
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)
     #define LAST_VISIBLE_LED (NUM_LEDS - 1)
+    // at how many Reviews+Lessons the frame should fully light up
+    #define FRAME_FULL 700
+    #define ITEMS_PER_PIXEL (FRAME_FULL / (MATRIX_WIDTH * MATRIX_HEIGHT))
+
     const bool kMatrixSerpentineLayout = true;
     const bool kMatrixVertical = false;
-
-    // at how many Reviews+Lessons the frame should fully light up
-    const uint16_t frameFull = 700;
-    const uint16_t itemsPerPixel = frameFull / (MATRIX_WIDTH * MATRIX_HEIGHT);
 
     void setup();
     void printLeds();

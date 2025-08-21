@@ -33,6 +33,15 @@ struct Cell
     uint8_t value = V;  // brightness value. mostly used for the future row
 };
 
+
+struct ReviewLessonCounts
+{
+    ReviewLessonCounts() : lessons(0), reviews(0) {}
+    ReviewLessonCounts(uint16_t l, uint16_t r) : lessons(l), reviews(r) {}
+    uint16_t lessons;
+    uint16_t reviews;
+};
+
 class Matrix
 {
 public:
@@ -47,6 +56,7 @@ public:
     static uint8_t width() { return MATRIX_WIDTH; }
     static uint8_t height() { return MATRIX_HEIGHT; }
     void simulationStep();
+    void checkReviewLessonCounts();
 
     void updateReviewFutureRow();
 
@@ -59,6 +69,9 @@ private:
     void lessonCellLogic(Coord coord);
     void reviewCellLogic(Coord coord);
     uint16_t getScaledFutureReview(uint8_t x);
+
+    ReviewLessonCounts getReviewLessonCounts() const;
+
 
 };
 

@@ -10,7 +10,8 @@
 class WaniKani {
 private:
     // minimum time between requests to API in minutes
-    const uint8_t MIN = 1;
+    // TODO: in the middle of the night ~2am-8am increase MIN count
+    const uint8_t MIN = 1;  // TODO: for testing low, increase later
     static const uint16_t SUMMARY_JSON_SIZE = 32768;
 
     int16_t reviews = -1;
