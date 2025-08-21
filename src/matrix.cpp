@@ -260,8 +260,34 @@ bool Matrix::removeRandomCell(CellType type)
 
 void Matrix::spawnCellAtTop(CellType type, uint8_t value)
 {
-    Coord coord(MATRIX_WIDTH / 2, MATRIX_HEIGHT - 2);
-    setCell(coord, type, value);
+    // Choose a starting column around the center
+    uint8_t startX = MATRIX_WIDTH / 2;
+    if ((MATRIX_WIDTH & 1) == 0)
+        startX = (random(2) == 0) ? startX : (uint8_t)(startX - 1);
+
+    for (int8_t y = MATRIX_HEIGHT - 1; y >= 0; --y)
+    {
+        bool rightFirst = random(2);
+        for (uint8_t offset = 0; offset < MATRIX_WIDTH; ++offset)
+        {
+            int16_t x = startX + (rightFirst ? 1 : -1) * offset;
+            if (x >= 0 && x < MATRIX_WIDTH && cells[x][y].type == CELL_EMPTY)
+            {
+                setCell(Coord(x, y), type, value);
+                return;
+            }
+            if (offset != 0)
+            {
+                x = startX - (rightFirst ? 1 : -1) * offset;
+                if (x >= 0 && x < MATRIX_WIDTH && cells[x][y].type == CELL_EMPTY)
+                {
+                    setCell(Coord(x, y), type, value);
+                    return;
+                }
+            }
+        }
+        // row is full, try the next row down
+    }
 }
 
 void Matrix::setBrightnessOne(CellType type, uint8_t value)
