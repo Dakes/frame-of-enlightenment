@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "WiFi.h"
 
 void Utils::WifiConnect()
 {
@@ -36,6 +37,7 @@ void Utils::WifiConnect()
         delay(1000);
         wifiCounter++;
     }
+    WiFi.setHostname("WaniKani Frame of enlightenment");
 
     Serial.println("");
     Serial.println("WiFi connected");
