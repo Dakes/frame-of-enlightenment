@@ -1,7 +1,7 @@
 #include "wanikani.h"
 #include "utils.h"
 
-WaniKani::WaniKani(const char* apiKey)
+WaniKani::WaniKani(const char* apiKey) : summaryCache(SUMMARY_JSON_SIZE)
 {
     this->apiKey = apiKey;
 }
@@ -34,15 +34,30 @@ bool WaniKani::apiRequest(String apiUrl, DynamicJsonDocument* json)
 
 DynamicJsonDocument* WaniKani::apiSummaryRequest()
 {
-    static DynamicJsonDocument cachedRequest(SUMMARY_JSON_SIZE);
+    if (overrideSummary)
+        return &summaryCache;
 
     if (this->canRequest(lastRequestTime) && Utils::WiFiConnected())
     {
         Serial.println("Caching Request Json");
-        if (this->apiRequest(this->WK_API_URL + (String)"summary", &cachedRequest))
+        if (this->apiRequest(this->WK_API_URL + (String)"summary", &summaryCache))
             lastRequestTime = millis();
     }
-    return &cachedRequest;
+    return &summaryCache;
+}
+
+bool WaniKani::setSummaryJson(const String& json)
+{
+    DeserializationError error = deserializeJson(summaryCache, json);
+    if (error)
+    {
+        Serial.print(F("WaniKani::setSummaryJson deserializeJson() failed: "));
+        Serial.println(error.f_str());
+        return false;
+    }
+    lastRequestTime = millis();
+    overrideSummary = true;
+    return true;
 }
 
 /**
@@ -122,24 +137,9 @@ int16_t WaniKani::getReviews()
 
 int16_t WaniKani::getReviews(uint8_t hour)
 {
-    if (hour == 1)
-        return 5;
-    if (hour == 2)
-        return 10;
-    if (hour == 10)
-        return 20;
-    if (hour == 11)
-        return 22;
-    if (hour == 12)
-        return 15;
-    if (hour == 23)
-        return 5;
-    if (hour == 24)
-        return 10;
     if (hour == 0)
         return this->reviews;
-    else
-        return this->getSummaryReviews(hour);
+    return this->getSummaryReviews(hour);
 }
 
 int16_t WaniKani::getLessons()

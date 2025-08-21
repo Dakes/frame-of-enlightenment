@@ -19,6 +19,8 @@ private:
     const char* apiKey;
     const char* WK_API_URL = "https://api.wanikani.com/v2/";
     bool apiRequest(String apiUrl, DynamicJsonDocument* json);
+    DynamicJsonDocument summaryCache;
+    bool overrideSummary = false;
     DynamicJsonDocument* apiSummaryRequest();
     int16_t getSummaryLessons();
     int16_t getSummaryReviews(uint8_t hour=0);
@@ -29,6 +31,7 @@ private:
 
 public:
     WaniKani(const char* apiKey);
+    bool setSummaryJson(const String& json);
     int16_t getReviews();
     // get upcoming Reviews that many hours in the future
     int16_t getReviews(uint8_t hour);
