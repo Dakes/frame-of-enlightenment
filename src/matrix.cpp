@@ -220,3 +220,163 @@ ReviewLessonCounts Matrix::getReviewLessonCounts() const
 
     return counts;
 }
+
+Coord Matrix::getRandomCellCoord(CellType type) const
+{
+    uint16_t total = 0;
+    for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
+        for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
+            if (cells[x][y].type == type)
+                ++total;
+
+    if (total == 0)
+        return Coord(0, 0);
+
+    uint16_t target = random(total);
+    for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
+    {
+        for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
+        {
+            if (cells[x][y].type == type)
+            {
+                if (target == 0)
+                    return Coord(x, y);
+                --target;
+            }
+        }
+    }
+    return Coord(0, 0);
+}
+
+bool Matrix::removeRandomCell(CellType type)
+{
+    Coord coord = getRandomCellCoord(type);
+    Cell* cell = getCell(coord);
+    if (!cell || cell->type != type)
+        return false;
+    *cell = Cell();
+    return true;
+}
+
+void Matrix::spawnCellAtTop(CellType type, uint8_t value)
+{
+    // Choose a starting column around the center
+    uint8_t startX = MATRIX_WIDTH / 2;
+    if ((MATRIX_WIDTH & 1) == 0)
+        startX = (random(2) == 0) ? startX : (uint8_t)(startX - 1);
+
+    for (int8_t y = MATRIX_HEIGHT - 1; y >= 0; --y)
+    {
+        bool rightFirst = random(2);
+        for (uint8_t offset = 0; offset < MATRIX_WIDTH; ++offset)
+        {
+            int16_t x = startX + (rightFirst ? 1 : -1) * offset;
+            if (x >= 0 && x < MATRIX_WIDTH && cells[x][y].type == CELL_EMPTY)
+            {
+                setCell(Coord(x, y), type, value);
+                return;
+            }
+            if (offset != 0)
+            {
+                x = startX - (rightFirst ? 1 : -1) * offset;
+                if (x >= 0 && x < MATRIX_WIDTH && cells[x][y].type == CELL_EMPTY)
+                {
+                    setCell(Coord(x, y), type, value);
+                    return;
+                }
+            }
+        }
+        // row is full, try the next row down
+    }
+}
+
+void Matrix::setBrightnessOne(CellType type, uint8_t value)
+{
+    for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
+    {
+        for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
+        {
+            if (cells[x][y].type == type)
+            {
+                cells[x][y].value = value;
+                return;
+            }
+        }
+    }
+}
+
+void Matrix::setBrightnessAll(CellType type, uint8_t value)
+{
+    for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
+        for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
+            if (cells[x][y].type == type)
+                cells[x][y].value = value;
+}
+
+void Matrix::checkReviewLessonCounts()
+{
+    static ulong lastSpawn = 0;
+
+    int16_t wkLessons = wk->getLessons();
+    int16_t wkReviews = wk->getReviews();
+    if (wkLessons < 0) wkLessons = 0;
+    if (wkReviews < 0) wkReviews = 0;
+    if (wkLessons > FRAME_FULL) wkLessons = FRAME_FULL;
+    if (wkReviews > FRAME_FULL) wkReviews = FRAME_FULL;
+
+    auto process = [&](CellType type, int16_t count, uint16_t cellCount) {
+        if (count == 0)
+        {
+            if (cellCount > 0)
+                removeRandomCell(type);
+            return;
+        }
+
+        if (count < ITEMS_PER_PIXEL)
+        {
+            if (cellCount == 0)
+            {
+                if (millis() - lastSpawn >= SPAWN_DELAY)
+                {
+                    uint8_t brightness = (count * V) / ITEMS_PER_PIXEL;
+                    spawnCellAtTop(type, brightness);
+                    lastSpawn = millis();
+                }
+            }
+            else if (cellCount == 1)
+            {
+                uint8_t brightness = (count * V) / ITEMS_PER_PIXEL;
+                setBrightnessOne(type, brightness);
+            }
+            else // cellCount > 1
+            {
+                removeRandomCell(type);
+            }
+            return;
+        }
+
+        // count >= ITEMS_PER_PIXEL
+        setBrightnessAll(type, V);
+        uint16_t requiredCells = count / ITEMS_PER_PIXEL;
+        if (cellCount > requiredCells)
+        {
+            removeRandomCell(type);
+            return;
+        }
+        if (cellCount < requiredCells)
+        {
+            if (millis() - lastSpawn >= SPAWN_DELAY)
+            {
+                spawnCellAtTop(type, V);
+                lastSpawn = millis();
+            }
+            return;
+        }
+        // else exact match; leftover items ignored
+    };
+
+    ReviewLessonCounts counts = getReviewLessonCounts();
+    process(CELL_REVIEW, wkReviews, counts.reviews);
+    counts = getReviewLessonCounts();
+    process(CELL_LESSON, wkLessons, counts.lessons);
+}
