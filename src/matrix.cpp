@@ -376,7 +376,7 @@ void Matrix::checkReviewLessonCounts()
     };
 
     ReviewLessonCounts counts = getReviewLessonCounts();
-    process(CELL_LESSON, wkLessons, counts.lessons);
-    counts = getReviewLessonCounts();
     process(CELL_REVIEW, wkReviews, counts.reviews);
+    counts = getReviewLessonCounts();
+    process(CELL_LESSON, wkLessons, counts.lessons);
 }

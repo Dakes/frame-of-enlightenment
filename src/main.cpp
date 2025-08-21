@@ -98,13 +98,9 @@ void loop()
         // Serial.println("Reviews: "+(String)wk.getReviews());
         // Serial.println("Lessons: "+(String)wk.getLessons());
 
-        // Serial.println("Reviews in 1 hour: " + (String)wk.getReviews(1));
-        // Serial.println("Reviews in 2 hours: " + (String)wk.getReviews(2));
-        // Serial.println("Reviews in 3 hours: " + (String)wk.getReviews(3));
-        // Serial.println("Reviews in 4 hours: " + (String)wk.getReviews(4));
-        // Serial.println("Reviews in 5 hours: " + (String)wk.getReviews(5));
 
 
+        matrix.checkReviewLessonCounts();
         matrix.simulationStep();
         matrix.updateReviewFutureRow();
 
