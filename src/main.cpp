@@ -3,12 +3,11 @@
 #include <time.h>
 #include <HTTPClient.h>
 #include "WiFi.h"
-
-
 #include "wanikani.h"
 #include "utils.h"
 #include "led.h"
 #include "matrix.h"
+#include "local_api.h"
 
 // configure WiFi etc. in config.h
 
@@ -33,6 +32,8 @@ void setup()
 
     sleep(1);
     led.begin();
+
+    setupLocalApi(&wk);
 
 
     matrix.clear();
@@ -92,6 +93,8 @@ void loop()
     {
         wk.refresh();
     }
+
+    handleLocalApi();
 
     EVERY_N_MILLISECONDS(MILLIS_PER_FRAME)
     {
