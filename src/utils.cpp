@@ -1,6 +1,8 @@
 #include "utils.h"
 #include "WiFi.h"
 
+const char* hostname = "WaniKani Frame of enlightenment";
+
 void Utils::WifiConnect()
 {
     const uint8_t retrySeconds = 60;
@@ -37,7 +39,7 @@ void Utils::WifiConnect()
         delay(1000);
         wifiCounter++;
     }
-    WiFi.setHostname("WaniKani Frame of enlightenment");
+    WiFi.setHostname(hostname);
 
     Serial.println("");
     Serial.println("WiFi connected");
