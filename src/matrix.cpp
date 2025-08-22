@@ -1,37 +1,45 @@
 #include "matrix.h"
 
-Matrix::Matrix(WaniKani *wk) { this->wk = wk; }
+Matrix::Matrix(WaniKani *wk) {
+  this->wk = wk;
+  cells = nullptr;
+}
+
+void Matrix::init() {
+  cells = new Cell[MATRIX_INTERNAL_WIDTH * MATRIX_INTERNAL_HEIGHT];
+  clear();
+}
 
 void Matrix::clear() {
-  for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
-    for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
-      cells[x][y] = Cell();
+  for (uint8_t x = 0; x < MATRIX_INTERNAL_WIDTH; ++x)
+    for (uint8_t y = 0; y < MATRIX_INTERNAL_HEIGHT; ++y)
+      cellAt(x, y) = Cell();
 }
 
 void Matrix::setCell(Coord coord, CellType type, uint8_t value) {
   const uint8_t x = coord.x;
   const uint8_t y = coord.y;
-  if (x >= MATRIX_WIDTH || y >= MATRIX_HEIGHT)
+  if (x >= MATRIX_INTERNAL_WIDTH || y >= MATRIX_INTERNAL_HEIGHT)
     return;
-  cells[x][y].type = type;
-  cells[x][y].value = value;
+  cellAt(x, y).type = type;
+  cellAt(x, y).value = value;
   switch (type) {
   case CELL_LESSON:
-    cells[x][y].hue = HUE_LESSON;
+    cellAt(x, y).hue = HUE_LESSON;
     break;
   case CELL_REVIEW:
-    cells[x][y].hue = HUE_REVIEW;
+    cellAt(x, y).hue = HUE_REVIEW;
     break;
   case CELL_REVIEW_FUTURE:
-    cells[x][y].hue = HUE_REVIEW_FUTURE;
+    cellAt(x, y).hue = HUE_REVIEW_FUTURE;
     break;
   case CELL_EMPTY:
   default:
-    cells[x][y].hue = 0;
+    cellAt(x, y).hue = 0;
     break;
   }
 
-  cells[x][y].hue += random(-hueRandomness, hueRandomness + 1);
+  cellAt(x, y).hue += random(-hueRandomness, hueRandomness + 1);
 }
 
 void Matrix::setCell(Coord coord, CellType type) {
@@ -39,21 +47,45 @@ void Matrix::setCell(Coord coord, CellType type) {
 }
 
 Cell *Matrix::getCell(uint8_t x, uint8_t y) {
-  if (x >= MATRIX_WIDTH || y >= MATRIX_HEIGHT || x < 0 || y < 0)
+  if (x >= MATRIX_INTERNAL_WIDTH || y >= MATRIX_INTERNAL_HEIGHT || x < 0 || y < 0)
     return nullptr;
-  return &cells[x][y];
+  return &cellAt(x, y);
 }
 
 Cell *Matrix::getCell(Coord coord) { return this->getCell(coord.x, coord.y); }
 
 const Cell *Matrix::getCell(uint8_t x, uint8_t y) const {
-  if (x >= MATRIX_WIDTH || y >= MATRIX_HEIGHT || x < 0 || y < 0)
+  if (x >= MATRIX_INTERNAL_WIDTH || y >= MATRIX_INTERNAL_HEIGHT || x < 0 || y < 0)
     return nullptr;
-  return &cells[x][y];
+  return &cellAt(x, y);
 }
 
 const Cell *Matrix::getCell(Coord coord) const {
   return this->getCell(coord.x, coord.y);
+}
+
+CRGB Matrix::getLedColor(uint8_t x, uint8_t y) const {
+  uint32_t r = 0, g = 0, b = 0;
+  for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx) {
+    for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy) {
+      uint8_t ix = x * MATRIX_RESOLUTION + sx;
+      uint8_t iy = y * MATRIX_RESOLUTION + sy;
+      const Cell &cell = cellAt(ix, iy);
+      if (cell.type != CELL_EMPTY) {
+        CRGB tmp;
+        tmp.setHSV(cell.hue, S, cell.value);
+        r += tmp.r;
+        g += tmp.g;
+        b += tmp.b;
+      }
+    }
+  }
+  uint16_t total = MATRIX_RESOLUTION * MATRIX_RESOLUTION;
+  CRGB out;
+  out.r = r / total;
+  out.g = g / total;
+  out.b = b / total;
+  return out;
 }
 
 /**
@@ -65,9 +97,9 @@ void Matrix::simulationStep() {
   if (calls < MATRIX_STEP_FRAMES)
     return;
 
-  for (uint8_t x = 0; x < MATRIX_WIDTH; ++x) {
-    for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y) {
-      Cell cell = cells[x][y];
+  for (uint8_t x = 0; x < MATRIX_INTERNAL_WIDTH; ++x) {
+    for (uint8_t y = 0; y < MATRIX_INTERNAL_HEIGHT; ++y) {
+      Cell cell = cellAt(x, y);
       Coord coord = Coord(x, y);
       this->generalCellLogic(coord);
       if (cell.type == CELL_LESSON) {
@@ -100,7 +132,7 @@ void Matrix::generalCellLogic(Coord coord) {
   // If blocked below, try diagonals
   Cell *downLeft =
       (y > 0 && x > 0) ? getCell((uint8_t)(x - 1), (uint8_t)(y - 1)) : nullptr;
-  Cell *downRight = (y > 0 && (uint8_t)(x + 1) < MATRIX_WIDTH)
+  Cell *downRight = (y > 0 && (uint8_t)(x + 1) < MATRIX_INTERNAL_WIDTH)
                         ? getCell((uint8_t)(x + 1), (uint8_t)(y - 1))
                         : nullptr;
 
@@ -146,17 +178,23 @@ void Matrix::updateReviewFutureRow() {
     if (reviewsHour > maxReviews)
       maxReviews = reviewsHour;
   }
+  uint8_t startY = (MATRIX_HEIGHT - 1) * MATRIX_RESOLUTION;
   if (maxReviews == 0) {
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
-      this->setCell(Coord(x, MATRIX_HEIGHT - 1), CELL_REVIEW_FUTURE, 0);
+      for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx)
+        for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy)
+          this->setCell(Coord(x * MATRIX_RESOLUTION + sx, startY + sy),
+                        CELL_REVIEW_FUTURE, 0);
     return;
   }
 
   for (uint8_t x = 0; x < MATRIX_WIDTH; ++x) {
-    Coord coord = Coord(x, MATRIX_HEIGHT - 1);
     uint16_t reviewsHour = this->getScaledFutureReview(x);
     uint8_t normalizedBrightness = (reviewsHour * V) / maxReviews;
-    this->setCell(coord, CELL_REVIEW_FUTURE, normalizedBrightness);
+    for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx)
+      for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy)
+        this->setCell(Coord(x * MATRIX_RESOLUTION + sx, startY + sy),
+                      CELL_REVIEW_FUTURE, normalizedBrightness);
   }
 }
 
@@ -190,33 +228,32 @@ uint16_t Matrix::getScaledFutureReview(uint8_t x) {
 
 ReviewLessonCounts Matrix::getReviewLessonCounts() const {
   ReviewLessonCounts counts;
-
-  for (const auto &cell : cells) {
-    for (auto c : cell) {
+  for (uint8_t x = 0; x < MATRIX_INTERNAL_WIDTH; ++x) {
+    for (uint8_t y = 0; y < MATRIX_INTERNAL_HEIGHT; ++y) {
+      const Cell &c = cellAt(x, y);
       if (c.type == CELL_LESSON)
         ++counts.lessons;
       else if (c.type == CELL_REVIEW)
         ++counts.reviews;
     }
   }
-
   return counts;
 }
 
 Coord Matrix::getRandomCellCoord(CellType type) const {
   uint16_t total = 0;
-  for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
-    for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
-      if (cells[x][y].type == type)
+  for (uint8_t x = 0; x < MATRIX_INTERNAL_WIDTH; ++x)
+    for (uint8_t y = 0; y < MATRIX_INTERNAL_HEIGHT; ++y)
+      if (cellAt(x, y).type == type)
         ++total;
 
   if (total == 0)
     return Coord(0, 0);
 
   uint16_t target = random(total);
-  for (uint8_t x = 0; x < MATRIX_WIDTH; ++x) {
-    for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y) {
-      if (cells[x][y].type == type) {
+  for (uint8_t x = 0; x < MATRIX_INTERNAL_WIDTH; ++x) {
+    for (uint8_t y = 0; y < MATRIX_INTERNAL_HEIGHT; ++y) {
+      if (cellAt(x, y).type == type) {
         if (target == 0)
           return Coord(x, y);
         --target;
@@ -237,25 +274,25 @@ bool Matrix::removeRandomCell(CellType type) {
 
 void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
   // Choose a starting column around the center
-  uint8_t startX = MATRIX_WIDTH / 2;
-  if ((MATRIX_WIDTH & 1) == 0)
+  uint8_t startX = MATRIX_INTERNAL_WIDTH / 2;
+  if ((MATRIX_INTERNAL_WIDTH & 1) == 0)
     startX = (random(2) == 0) ? startX : (uint8_t)(startX - 1);
 
-  for (int8_t y = MATRIX_HEIGHT - 1; y >= 0; --y) {
+  for (int16_t y = MATRIX_INTERNAL_HEIGHT - 1; y >= 0; --y) {
     bool rightFirst = random(2);
-    for (uint8_t offset = 0; offset < MATRIX_WIDTH; ++offset) {
+      for (uint8_t offset = 0; offset < MATRIX_INTERNAL_WIDTH; ++offset) {
       int16_t x = startX + (rightFirst ? 1 : -1) * offset;
-      if (x >= 0 && x < MATRIX_WIDTH &&
-          (cells[x][y].type == CELL_EMPTY ||
-           cells[x][y].type == CELL_REVIEW_FUTURE)) {
+      if (x >= 0 && x < MATRIX_INTERNAL_WIDTH &&
+          (cellAt(x, y).type == CELL_EMPTY ||
+           cellAt(x, y).type == CELL_REVIEW_FUTURE)) {
         setCell(Coord(x, y), type, value);
         return;
       }
       if (offset != 0) {
         x = startX - (rightFirst ? 1 : -1) * offset;
-        if (x >= 0 && x < MATRIX_WIDTH &&
-            (cells[x][y].type == CELL_EMPTY ||
-             cells[x][y].type == CELL_REVIEW_FUTURE)) {
+        if (x >= 0 && x < MATRIX_INTERNAL_WIDTH &&
+            (cellAt(x, y).type == CELL_EMPTY ||
+             cellAt(x, y).type == CELL_REVIEW_FUTURE)) {
           setCell(Coord(x, y), type, value);
           return;
         }
@@ -265,23 +302,6 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
   }
 }
 
-void Matrix::setBrightnessOne(CellType type, uint8_t value) {
-  for (uint8_t x = 0; x < MATRIX_WIDTH; ++x) {
-    for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y) {
-      if (cells[x][y].type == type) {
-        cells[x][y].value = value;
-        return;
-      }
-    }
-  }
-}
-
-void Matrix::setBrightnessAll(CellType type, uint8_t value) {
-  for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
-    for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
-      if (cells[x][y].type == type)
-        cells[x][y].value = value;
-}
 
 void Matrix::checkReviewLessonCounts() {
   static ulong lastSpawn = 0;
@@ -298,32 +318,8 @@ void Matrix::checkReviewLessonCounts() {
     wkReviews = FRAME_FULL;
 
   auto process = [&](CellType type, int16_t count, uint16_t cellCount) {
-    if (count == 0) {
-      if (cellCount > 0)
-        removeRandomCell(type);
-      return;
-    }
-
-    if (count < ITEMS_PER_PIXEL) {
-      if (cellCount == 0) {
-        if (millis() - lastSpawn >= SPAWN_DELAY) {
-          uint8_t brightness = (count * V) / ITEMS_PER_PIXEL;
-          spawnCellAtTop(type, brightness);
-          lastSpawn = millis();
-        }
-      } else if (cellCount == 1) {
-        uint8_t brightness = (count * V) / ITEMS_PER_PIXEL;
-        setBrightnessOne(type, brightness);
-      } else // cellCount > 1
-      {
-        removeRandomCell(type);
-      }
-      return;
-    }
-
-    // count >= ITEMS_PER_PIXEL
-    setBrightnessAll(type, V);
-    uint16_t requiredCells = count / ITEMS_PER_PIXEL;
+    uint32_t cellsPerPixel = MATRIX_RESOLUTION * MATRIX_RESOLUTION;
+    uint32_t requiredCells = ((uint32_t)count * cellsPerPixel) / ITEMS_PER_PIXEL;
     if (cellCount > requiredCells) {
       removeRandomCell(type);
       return;

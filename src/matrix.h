@@ -46,6 +46,7 @@ class Matrix
 {
 public:
     Matrix(WaniKani* wk);
+    void init();
     void clear();
     void setCell(Coord coord, CellType type, uint8_t value);
     void setCell(Coord coord, CellType type);
@@ -53,6 +54,8 @@ public:
     Cell* getCell(uint8_t x, uint8_t y);
     const Cell* getCell(Coord coord) const;
     const Cell* getCell(uint8_t x, uint8_t y) const;
+    // Get aggregated color for the physical LED at (x, y)
+    CRGB getLedColor(uint8_t x, uint8_t y) const;
     static uint8_t width() { return MATRIX_WIDTH; }
     static uint8_t height() { return MATRIX_HEIGHT; }
     void simulationStep();
@@ -63,8 +66,14 @@ public:
 private:
     WaniKani* wk;
     const uint8_t hueRandomness = 15;  // add a random value between +- this to the hue, for some variation
-    // 0, 0 is bottom left
-    Cell cells[MATRIX_WIDTH][MATRIX_HEIGHT];
+    // 0, 0 is bottom left in high resolution
+    Cell* cells = nullptr;
+    inline Cell& cellAt(uint8_t x, uint8_t y) {
+        return cells[x + y * MATRIX_INTERNAL_WIDTH];
+    }
+    inline const Cell& cellAt(uint8_t x, uint8_t y) const {
+        return cells[x + y * MATRIX_INTERNAL_WIDTH];
+    }
     void generalCellLogic(Coord coord);
     void lessonCellLogic(Coord coord);
     void reviewCellLogic(Coord coord);
@@ -76,8 +85,6 @@ private:
     Coord getRandomCellCoord(CellType type) const;
     bool removeRandomCell(CellType type);
     void spawnCellAtTop(CellType type, uint8_t value);
-    void setBrightnessOne(CellType type, uint8_t value);
-    void setBrightnessAll(CellType type, uint8_t value);
 
 
 };

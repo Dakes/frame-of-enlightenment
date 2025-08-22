@@ -185,16 +185,7 @@ void Led::displayMatrix(const Matrix& matrix)
     {
         for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
         {
-            const Cell* cell = matrix.getCell(x, y);
-            CRGB c = CRGB::Black;
-            if (cell->type != CELL_EMPTY)
-            {
-                c.setHSV(cell->hue, S, cell->value);
-            }
-            else
-            {
-                c = CRGB::Black;
-            }
+            CRGB c = matrix.getLedColor(x, y);
             target[XY(x, y)] = c;
         }
     }

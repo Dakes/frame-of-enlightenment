@@ -35,8 +35,7 @@ void setup()
 
     setupLocalApi(&wk);
 
-
-    matrix.clear();
+    matrix.init();
 
     // test sets
     // matrix.setCell(Coord(0, 0), CELL_REVIEW, V);

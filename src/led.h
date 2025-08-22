@@ -11,8 +11,16 @@
 
 
 // See: https://github.com/FastLED/FastLED/blob/master/examples/XYMatrix/XYMatrix.ino for details about the options
+// Physical matrix size in pixels
 #define MATRIX_WIDTH  10  // adjust
 #define MATRIX_HEIGHT 10  // adjust
+
+// factor by which the simulation matrix is higher resolution than the LED matrix
+#define MATRIX_RESOLUTION 10
+
+// internal high-resolution matrix dimensions
+#define MATRIX_INTERNAL_WIDTH  (MATRIX_WIDTH  * MATRIX_RESOLUTION)
+#define MATRIX_INTERNAL_HEIGHT (MATRIX_HEIGHT * MATRIX_RESOLUTION)
 
 class Matrix; // forward declaration
 
