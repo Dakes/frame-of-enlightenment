@@ -295,29 +295,17 @@ bool Matrix::removeRandomCell(CellType type) {
 }
 
 void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
-  // Choose a starting column around the center
-  uint8_t startX = MATRIX_INTERNAL_WIDTH / 2;
-  if ((MATRIX_INTERNAL_WIDTH & 1) == 0)
-    startX = (random(2) == 0) ? startX : (uint8_t)(startX - 1);
+  // Choose a random starting column
+  uint8_t startX = random(MATRIX_INTERNAL_WIDTH);
+  // Skip the top review-future row (reserved band at the top)
+  int16_t topY = MATRIX_INTERNAL_HEIGHT - MATRIX_RESOLUTION - 1;
 
-  for (int16_t y = MATRIX_INTERNAL_HEIGHT - 1; y >= 0; --y) {
-    bool rightFirst = random(2);
-      for (uint8_t offset = 0; offset < MATRIX_INTERNAL_WIDTH; ++offset) {
-      int16_t x = startX + (rightFirst ? 1 : -1) * offset;
-      if (x >= 0 && x < MATRIX_INTERNAL_WIDTH &&
-          (cellAt(x, y).type == CELL_EMPTY ||
-           cellAt(x, y).type == CELL_REVIEW_FUTURE)) {
+  for (int16_t y = topY; y >= 0; --y) {
+    for (uint8_t offset = 0; offset < MATRIX_INTERNAL_WIDTH; ++offset) {
+      uint8_t x = (startX + offset) % MATRIX_INTERNAL_WIDTH;
+      if (cellAt(x, y).type == CELL_EMPTY) {
         setCell(Coord(x, y), type, value);
         return;
-      }
-      if (offset != 0) {
-        x = startX - (rightFirst ? 1 : -1) * offset;
-        if (x >= 0 && x < MATRIX_INTERNAL_WIDTH &&
-            (cellAt(x, y).type == CELL_EMPTY ||
-             cellAt(x, y).type == CELL_REVIEW_FUTURE)) {
-          setCell(Coord(x, y), type, value);
-          return;
-        }
       }
     }
     // row is full, try the next row down
