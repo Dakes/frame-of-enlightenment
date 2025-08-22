@@ -43,8 +43,8 @@ private:
     #define MILLIS_PER_FRAME (1000 / FRAMERATE)
     // Animation delay in ms
     #define ANIM_DELAY 10
-    // Animation delay for hourglass fill
-    #define SPAWN_DELAY (1000 / MATRIX_RESOLUTION_SCALE)
+    // Delay between spawning new cells (scaled with resolution and slower than animation)
+    #define SPAWN_DELAY (MATRIX_RESOLUTION_SCALE * 100)
 
 
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)

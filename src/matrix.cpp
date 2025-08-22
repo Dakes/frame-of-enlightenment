@@ -66,6 +66,7 @@ const Cell *Matrix::getCell(Coord coord) const {
 
 CRGB Matrix::getLedColor(uint8_t x, uint8_t y) const {
   uint32_t r = 0, g = 0, b = 0;
+  uint16_t lit = 0;
   for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx) {
     for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy) {
       uint8_t ix = x * MATRIX_RESOLUTION + sx;
@@ -77,14 +78,29 @@ CRGB Matrix::getLedColor(uint8_t x, uint8_t y) const {
         r += tmp.r;
         g += tmp.g;
         b += tmp.b;
+        ++lit;
       }
     }
   }
+  if (lit == 0)
+    return CRGB::Black;
+
   uint16_t total = MATRIX_RESOLUTION * MATRIX_RESOLUTION;
   CRGB out;
   out.r = r / total;
   out.g = g / total;
   out.b = b / total;
+
+  const uint8_t MIN_BRIGHTNESS = 50;
+  uint8_t maxVal = max(out.r, max(out.g, out.b));
+  uint16_t target = MIN_BRIGHTNESS +
+                    ((uint16_t)maxVal * (255 - MIN_BRIGHTNESS)) / 255;
+  if (maxVal > 0) {
+    out.r = (out.r * target) / maxVal;
+    out.g = (out.g * target) / maxVal;
+    out.b = (out.b * target) / maxVal;
+  }
+
   return out;
 }
 

@@ -6,12 +6,14 @@
 #include "wanikani.h"
 
 #define ONE_TO_ONE_HOURS 3  // number of pixels to light for 1 hour, rest will be squished to 24h
-// run the simulation faster for higher internal resolution (half the resolution factor)
-#define MATRIX_SIMULATION_FPS (3 * MATRIX_RESOLUTION_SCALE)
-
-
+// run the simulation faster for higher internal resolution
+#define MATRIX_SIMULATION_FPS (15 * MATRIX_RESOLUTION_SCALE)
 #define MATRIX_SIMULATION_MILLIS (1000 / MATRIX_SIMULATION_FPS)
-#define MATRIX_STEP_FRAMES (MATRIX_SIMULATION_MILLIS / MILLIS_PER_FRAME)
+// ensure at least one simulation step per rendered frame
+#define MATRIX_STEP_FRAMES \
+    ((MATRIX_SIMULATION_MILLIS / MILLIS_PER_FRAME) > 0 \
+         ? (MATRIX_SIMULATION_MILLIS / MILLIS_PER_FRAME) \
+         : 1)
 
 enum CellType
 {
