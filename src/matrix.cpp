@@ -182,9 +182,12 @@ void Matrix::updateReviewFutureRow() {
   if (maxReviews == 0) {
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
       for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx)
-        for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy)
-          this->setCell(Coord(x * MATRIX_RESOLUTION + sx, startY + sy),
-                        CELL_REVIEW_FUTURE, 0);
+        for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy) {
+          Coord c(x * MATRIX_RESOLUTION + sx, startY + sy);
+          Cell *cell = getCell(c);
+          if (cell && (cell->type == CELL_EMPTY || cell->type == CELL_REVIEW_FUTURE))
+            setCell(c, CELL_REVIEW_FUTURE, 0);
+        }
     return;
   }
 
@@ -192,9 +195,12 @@ void Matrix::updateReviewFutureRow() {
     uint16_t reviewsHour = this->getScaledFutureReview(x);
     uint8_t normalizedBrightness = (reviewsHour * V) / maxReviews;
     for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx)
-      for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy)
-        this->setCell(Coord(x * MATRIX_RESOLUTION + sx, startY + sy),
-                      CELL_REVIEW_FUTURE, normalizedBrightness);
+      for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy) {
+        Coord c(x * MATRIX_RESOLUTION + sx, startY + sy);
+        Cell *cell = getCell(c);
+        if (cell && (cell->type == CELL_EMPTY || cell->type == CELL_REVIEW_FUTURE))
+          setCell(c, CELL_REVIEW_FUTURE, normalizedBrightness);
+      }
   }
 }
 

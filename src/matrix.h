@@ -6,7 +6,8 @@
 #include "wanikani.h"
 
 #define ONE_TO_ONE_HOURS 3  // number of pixels to light for 1 hour, rest will be squished to 24h
-#define MATRIX_SIMULATION_FPS 3
+// run the simulation faster for higher internal resolution (half the resolution factor)
+#define MATRIX_SIMULATION_FPS (3 * MATRIX_RESOLUTION_SCALE)
 
 
 #define MATRIX_SIMULATION_MILLIS (1000 / MATRIX_SIMULATION_FPS)

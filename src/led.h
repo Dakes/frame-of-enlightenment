@@ -18,6 +18,9 @@
 // factor by which the simulation matrix is higher resolution than the LED matrix
 #define MATRIX_RESOLUTION 10
 
+// scale derived from resolution for timing adjustments (half resolution, min 1)
+#define MATRIX_RESOLUTION_SCALE ((MATRIX_RESOLUTION + 1) / 2)
+
 // internal high-resolution matrix dimensions
 #define MATRIX_INTERNAL_WIDTH  (MATRIX_WIDTH  * MATRIX_RESOLUTION)
 #define MATRIX_INTERNAL_HEIGHT (MATRIX_HEIGHT * MATRIX_RESOLUTION)
@@ -41,7 +44,7 @@ private:
     // Animation delay in ms
     #define ANIM_DELAY 10
     // Animation delay for hourglass fill
-    #define SPAWN_DELAY 1000
+    #define SPAWN_DELAY (1000 / MATRIX_RESOLUTION_SCALE)
 
 
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)
