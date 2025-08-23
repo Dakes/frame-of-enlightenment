@@ -64,29 +64,52 @@ const Cell *Matrix::getCell(Coord coord) const {
   return this->getCell(coord.x, coord.y);
 }
 
-CRGB Matrix::getLedColor(uint8_t x, uint8_t y) const {
-  uint32_t r = 0, g = 0, b = 0;
-  for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx) {
-    for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy) {
-      uint8_t ix = x * MATRIX_RESOLUTION + sx;
-      uint8_t iy = y * MATRIX_RESOLUTION + sy;
-      const Cell &cell = cellAt(ix, iy);
-      if (cell.type != CELL_EMPTY) {
-        CRGB tmp;
-        tmp.setHSV(cell.hue, S, cell.value);
-        r += tmp.r;
-        g += tmp.g;
-        b += tmp.b;
-      }
+CHSV Matrix::getLedColor(uint8_t x, uint8_t y) const {
+    // Accumulate hue on the unit circle, weighted by value (V)
+    int32_t vecX = 0;
+    int32_t vecY = 0;
+    uint32_t sumV = 0;
+
+    for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx) {
+        for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy) {
+            const uint8_t ix = x * MATRIX_RESOLUTION + sx;
+            const uint8_t iy = y * MATRIX_RESOLUTION + sy;
+            const Cell &cell = cellAt(ix, iy);
+
+            if (cell.type != CELL_EMPTY) {
+                const uint8_t h = cell.hue;
+                const uint8_t v = cell.value;
+
+                const int16_t cx = (int16_t)cos8(h) - 128;
+                const int16_t cy = (int16_t)sin8(h) - 128;
+
+                vecX += (int32_t)cx * v;
+                vecY += (int32_t)cy * v;
+                sumV += v;
+            }
+        }
     }
-  }
-  uint16_t total = MATRIX_RESOLUTION * MATRIX_RESOLUTION;
-  CRGB out;
-  out.r = r / total;
-  out.g = g / total;
-  out.b = b / total;
-  return out;
+
+    const uint16_t total = MATRIX_RESOLUTION * MATRIX_RESOLUTION;
+
+    // Average value across the full supersample grid (empties contribute 0)
+    const uint8_t avgV = (uint8_t)(sumV / total);
+
+    // Compute average hue from vector; default to 0 if vector is zero
+    uint8_t avgH = 0;
+    if (vecX != 0 || vecY != 0) {
+        float angle = (float)atan2((float)vecY, (float)vecX); // -pi..pi
+        if (angle < 0.0f) {
+            angle += 6.283185307f; // +2*pi
+        }
+        // Map 0..2*pi to 0..255
+        avgH = (uint8_t)(angle * 40.584510488f); // 255 / (2*pi)
+    }
+
+    // Keep saturation constant
+    return CHSV(avgH, S, avgV);
 }
+
 
 /**
  * Performs a simulation step for every cell in the Matrix
@@ -288,17 +311,13 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
     bool rightFirst = random(2);
       for (uint8_t offset = 0; offset < MATRIX_INTERNAL_WIDTH; ++offset) {
       int16_t x = startX + (rightFirst ? 1 : -1) * offset;
-      if (x >= 0 && x < MATRIX_INTERNAL_WIDTH &&
-          (cellAt(x, y).type == CELL_EMPTY ||
-           cellAt(x, y).type == CELL_REVIEW_FUTURE)) {
+      if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
         setCell(Coord(x, y), type, value);
         return;
       }
       if (offset != 0) {
         x = startX - (rightFirst ? 1 : -1) * offset;
-        if (x >= 0 && x < MATRIX_INTERNAL_WIDTH &&
-            (cellAt(x, y).type == CELL_EMPTY ||
-             cellAt(x, y).type == CELL_REVIEW_FUTURE)) {
+        if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
           setCell(Coord(x, y), type, value);
           return;
         }

@@ -1,6 +1,4 @@
 #include <Arduino.h>
-// #include <FastLED.h>
-#include <time.h>
 #include <HTTPClient.h>
 #include "WiFi.h"
 #include "wanikani.h"
@@ -28,6 +26,7 @@ void setup()
     // delay(200);
     // int result = myFunction(2, 3);
     Utils::WifiConnect();
+    randomSeed(millis());
     Serial.println((String)"FreeHeap: " + ESP.getFreeHeap()/1024);
 
     sleep(1);

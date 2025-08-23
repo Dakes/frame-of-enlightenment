@@ -7,8 +7,7 @@
 
 #define ONE_TO_ONE_HOURS 3  // number of pixels to light for 1 hour, rest will be squished to 24h
 // run the simulation faster for higher internal resolution (half the resolution factor)
-#define MATRIX_SIMULATION_FPS (3 * MATRIX_RESOLUTION_SCALE)
-
+#define MATRIX_SIMULATION_FPS (7 * MATRIX_RESOLUTION_SCALE)
 
 #define MATRIX_SIMULATION_MILLIS (1000 / MATRIX_SIMULATION_FPS)
 #define MATRIX_STEP_FRAMES (MATRIX_SIMULATION_MILLIS / MILLIS_PER_FRAME)
@@ -56,7 +55,7 @@ public:
     const Cell* getCell(Coord coord) const;
     const Cell* getCell(uint8_t x, uint8_t y) const;
     // Get aggregated color for the physical LED at (x, y)
-    CRGB getLedColor(uint8_t x, uint8_t y) const;
+    CHSV getLedColor(uint8_t x, uint8_t y) const;
     static uint8_t width() { return MATRIX_WIDTH; }
     static uint8_t height() { return MATRIX_HEIGHT; }
     void simulationStep();

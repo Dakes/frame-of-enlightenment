@@ -38,6 +38,7 @@ private:
     #define S 255
     // HSV value (brightness / Luma)
     #define V 255
+    #define MIN_V 20
 
     #define FRAMERATE 60
     #define MILLIS_PER_FRAME (1000 / FRAMERATE)

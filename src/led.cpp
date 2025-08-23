@@ -179,21 +179,28 @@ void Led::show(u16_t delay)
 
 void Led::displayMatrix(const Matrix& matrix)
 {
-    static CRGB target[NUM_LEDS];
-
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
     {
         for (uint8_t y = 0; y < MATRIX_HEIGHT; ++y)
         {
-            CRGB c = matrix.getLedColor(x, y);
-            target[XY(x, y)] = c;
+            CHSV color = matrix.getLedColor(x, y);
+            CRGB color_rgb{};
+            hsv2rgb_spectrum(color, color_rgb);
+            leds[XY(x, y)] = color_rgb;
+
+            // Map luma 0..255 to MIN_V..255
+            const uint8_t v = color.v;
+            if (v > 0)
+            {
+                const uint8_t mappedV = MIN_V + scale8(v, 255 - MIN_V);
+
+                // Convert to HSV, replace V with mappedV, convert back to RGB
+                color.v = mappedV;
+                hsv2rgb_spectrum(color, color_rgb);
+                leds[XY(x, y)] = color_rgb;
+            }
         }
     }
 
-    // Move a fixed fraction (e.g. 64/255 ≈ 25%) toward target each call.
-    for (uint16_t i = 0; i < NUM_LEDS; ++i)
-    {
-        nblend(leds[i], target[i], 32);
-    }
     FastLED.show();
 }
