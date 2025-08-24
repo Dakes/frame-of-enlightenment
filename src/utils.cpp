@@ -1,13 +1,24 @@
 #include "utils.h"
 #include "runtime_config.h"
+#include "WiFi.h"
 
 void Utils::WifiConnect()
 {
     const uint8_t retrySeconds = 60;
 
     WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100);
+    WiFi.persistent(true);
+    WiFi.setAutoConnect(true);
+    WiFi.setAutoReconnect(true);
+    delay(5);
+    // Check if already connected (from auto-connect)
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        Serial.println("Already connected via auto-connect!");
+        Serial.print("IP: ");
+        Serial.println(WiFi.localIP());
+        return;
+    }
 
     WiFi.setHostname("WaniKani frame of enlightenment");
     WiFi.begin(g_config.wifiSsid.c_str(), g_config.wifiPass.c_str());
