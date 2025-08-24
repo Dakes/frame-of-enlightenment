@@ -30,6 +30,7 @@ struct Cell
 {
     CellType type = CELL_EMPTY;
     u8_t hue = 0;  // hue of the color, because the hue varies for a better visual effect
+    uint8_t saturation = S;  // saturation of the color, varies while cell is moving
     uint8_t value = V;  // brightness value. mostly used for the future row
 };
 
