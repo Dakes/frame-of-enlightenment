@@ -14,3 +14,4 @@ lib
 
 # copy src/config_safe.h to this and edit to include your credentials
 src/config.h
+config.h
