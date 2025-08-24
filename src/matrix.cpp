@@ -354,6 +354,10 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
   enum SpawnState { STAY, SEARCH };
   static SpawnState state = SEARCH;
 
+  if (type == CELL_LESSON) {
+    state = STAY;
+  }
+
   uint8_t startX;
   if (state == STAY && targetX >= 0) {
     startX = targetX;
@@ -370,7 +374,8 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
       if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
         setCell(Coord(x, y), type, value);
         targetX = x;
-        state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
+        if (type == CELL_REVIEW)
+          state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
         return;
       }
       if (offset != 0) {
@@ -378,7 +383,8 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
         if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
           setCell(Coord(x, y), type, value);
           targetX = x;
-          state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
+          if (type == CELL_REVIEW)
+            state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
           return;
         }
       }
