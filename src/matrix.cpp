@@ -180,7 +180,39 @@ void Matrix::generalCellLogic(Coord coord) {
   // else: stays in place (rests on floor or another cell)
 }
 
-void Matrix::lessonCellLogic(Coord coord) {}
+void Matrix::lessonCellLogic(Coord coord) {
+  Cell *cur = getCell(coord);
+  if (!cur || cur->type != CELL_LESSON)
+    return;
+
+  const uint8_t x = coord.x;
+  const uint8_t y = coord.y;
+
+  Cell *downLeft2 =
+      (y > 0 && x > 1) ? getCell((uint8_t)(x - 2), (uint8_t)(y - 1)) : nullptr;
+  Cell *downRight2 =
+      (y > 0 && (uint8_t)(x + 2) < MATRIX_INTERNAL_WIDTH)
+          ? getCell((uint8_t)(x + 2), (uint8_t)(y - 1))
+          : nullptr;
+
+  const bool leftFree = (downLeft2 && downLeft2->type == CELL_EMPTY);
+  const bool rightFree = (downRight2 && downRight2->type == CELL_EMPTY);
+
+  if (leftFree && rightFree) {
+    if ((millis() & 1) == 0)
+      *downLeft2 = *cur;
+    else
+      *downRight2 = *cur;
+
+    *cur = Cell();
+  } else if (leftFree) {
+    *downLeft2 = *cur;
+    *cur = Cell();
+  } else if (rightFree) {
+    *downRight2 = *cur;
+    *cur = Cell();
+  }
+}
 
 void Matrix::reviewCellLogic(Coord coord) {}
 
