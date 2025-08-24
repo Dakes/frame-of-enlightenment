@@ -190,7 +190,7 @@ void Matrix::lessonCellLogic(Coord coord) {
   const uint8_t y = coord.y;
 
   Cell *below = (y > 0) ? getCell(x, (uint8_t)(y - 1)) : nullptr;
-  if (!below || below->type != CELL_REVIEW)
+  if (!below || below->type == CELL_EMPTY)
     return;
 
   Cell *downLeft1 =
@@ -206,10 +206,10 @@ void Matrix::lessonCellLogic(Coord coord) {
           ? getCell((uint8_t)(x + 2), (uint8_t)(y - 1))
           : nullptr;
 
-  const bool canSlipLeft = (downLeft1 && downLeft1->type == CELL_REVIEW &&
+  const bool canSlipLeft = (downLeft1 && downLeft1->type != CELL_EMPTY &&
                             downLeft2 && downLeft2->type == CELL_EMPTY);
   const bool canSlipRight =
-      (downRight1 && downRight1->type == CELL_REVIEW && downRight2 &&
+      (downRight1 && downRight1->type != CELL_EMPTY && downRight2 &&
        downRight2->type == CELL_EMPTY);
 
   if (canSlipLeft && canSlipRight) {
