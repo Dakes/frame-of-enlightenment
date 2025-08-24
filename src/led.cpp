@@ -24,8 +24,8 @@ void Led::setup()
 
     Serial.println("LED setup complete");
 
-    // Set a lower brightness to start
-    FastLED.setBrightness(128);
+    // Set full brightness to start
+    FastLED.setBrightness(255);
 }
 
 uint16_t Led::XY(uint8_t x, uint8_t y)
@@ -106,77 +106,6 @@ void Led::printLeds()
  * pixel is a pointer to the individual pixel from Fastled led matrix.
  * If pixel is off, fades it to on at that hue from the beginning.
 */
-void Led::fadeToHue(CRGB* pixel, uint8_t targetHue)
-{
-    if (pixel->getLuma() == 0)
-        fadeOn(pixel, targetHue);
-    else
-    {
-        CHSV hsvPix(rgb2hsv_approximate(*pixel));
-        while (hsvPix.hue != targetHue)
-        {
-            if (hsvPix.hue < targetHue)
-                hsvPix.hue++;
-            else
-                hsvPix.hue--;
-            pixel->setHue(hsvPix.hue);
-            show(ANIM_DELAY * 3);
-        }
-    }
-}
-
-
-void Led::fadeOff(CRGB* pixel)
-{
-    const uint8_t fading = 10; //pixel->getLuma();
-    uint8_t prevLuma = 0;
-    while (pixel->getLuma() > 0)
-    {
-        if (prevLuma == pixel->getLuma())
-        {
-            pixel->setRGB(0, 0, 0);
-            show();
-            return;
-        }
-
-        prevLuma = pixel->getLuma();
-        // Serial.println("fadeOff: " + String(pixel->getLuma()));
-        // fading--;
-        pixel->fadeToBlackBy(fading);
-        show();
-    }
-}
-
-void Led::fadeOn(CRGB* pixel, u8_t hue)
-{
-    if (pixel->getAverageLight() > V / 4)
-        return;
-    pixel->setHue(hue);
-
-    for (int v = 0; v < V; v += 20)
-    {
-        if (v > V) v = V;
-        pixel->setHSV(hue, S, v);
-        show(ANIM_DELAY / 2);
-    }
-    pixel->setHSV(hue, S, V);
-}
-
-/**
- * Show with delay
-*/
-void Led::show()
-{
-    show(ANIM_DELAY);
-}
-
-void Led::show(u16_t delay)
-{
-    FastLED.delay(delay);
-    FastLED.show();
-}
-
-
 void Led::displayMatrix(const Matrix& matrix)
 {
     for (uint8_t x = 0; x < MATRIX_WIDTH; ++x)
