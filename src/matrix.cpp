@@ -43,7 +43,7 @@ void Matrix::setCell(Coord coord, CellType type, uint8_t value) {
   cellAt(x, y).hue += random(-hueRandomness, hueRandomness + 1);
 
   if (type == CELL_LESSON || type == CELL_REVIEW)
-    cellAt(x, y).saturation = random(50, 201);
+    cellAt(x, y).saturation = random(MIN_S, 201);
   else
     cellAt(x, y).saturation = S;
 }
@@ -160,7 +160,7 @@ void Matrix::generalCellLogic(Coord coord) {
                         : nullptr; // y==0 -> boundary (nullptr)
   if (below && below->type == CELL_EMPTY) {
     *below = *cur;
-    below->saturation = random(50, 201);
+    below->saturation = random(MIN_S, 201);
     *cur = Cell(); // leave an empty cell behind
     return;
   }
@@ -179,20 +179,20 @@ void Matrix::generalCellLogic(Coord coord) {
     // Simple randomness: millis() LSB
     if ((millis() & 1) == 0) {
       *downLeft = *cur;
-      downLeft->saturation = random(50, 201);
+      downLeft->saturation = random(MIN_S, 201);
     } else {
       *downRight = *cur;
-      downRight->saturation = random(50, 201);
+      downRight->saturation = random(MIN_S, 201);
     }
 
     *cur = Cell();
   } else if (leftFree) {
     *downLeft = *cur;
-    downLeft->saturation = random(50, 201);
+    downLeft->saturation = random(MIN_S, 201);
     *cur = Cell();
   } else if (rightFree) {
     *downRight = *cur;
-    downRight->saturation = random(50, 201);
+    downRight->saturation = random(MIN_S, 201);
     *cur = Cell();
   } else {
     cur->saturation = S; // stays in place (rests on floor or another cell)
@@ -233,20 +233,20 @@ void Matrix::lessonCellLogic(Coord coord) {
   if (canSlipLeft && canSlipRight) {
     if ((millis() & 1) == 0) {
       *downLeft2 = *cur;
-      downLeft2->saturation = random(50, 201);
+      downLeft2->saturation = random(MIN_S, 201);
     } else {
       *downRight2 = *cur;
-      downRight2->saturation = random(50, 201);
+      downRight2->saturation = random(MIN_S, 201);
     }
 
     *cur = Cell();
   } else if (canSlipLeft) {
     *downLeft2 = *cur;
-    downLeft2->saturation = random(50, 201);
+    downLeft2->saturation = random(MIN_S, 201);
     *cur = Cell();
   } else if (canSlipRight) {
     *downRight2 = *cur;
-    downRight2->saturation = random(50, 201);
+    downRight2->saturation = random(MIN_S, 201);
     *cur = Cell();
   } else {
     cur->saturation = S;

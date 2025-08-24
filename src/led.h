@@ -36,6 +36,7 @@ private:
 
     // HSV Saturation
     #define S 255
+    #define MIN_S 50
     // HSV value (brightness / Luma)
     #define V 255
     #define MIN_V 20
