@@ -346,6 +346,8 @@ void Matrix::checkReviewLessonCounts() {
   static ulong lastSpawn = 0;
   enum SpawnOrder { REVIEWS_FIRST, LESSONS_FIRST };
   static SpawnOrder order = REVIEWS_FIRST;
+  const uint8_t REVIEW_TO_LESSON_PER_MYRIAD = 8;
+  const uint8_t LESSON_TO_REVIEW_PER_MYRIAD = 10;
 
   int16_t wkLessons = wk->getLessons();
   int16_t wkReviews = wk->getReviews();
@@ -380,13 +382,13 @@ void Matrix::checkReviewLessonCounts() {
     process(CELL_REVIEW, wkReviews, counts.reviews);
     counts = getReviewLessonCounts();
     process(CELL_LESSON, wkLessons, counts.lessons);
-    if (random(100) < 5)
+    if (random(10000) < REVIEW_TO_LESSON_PER_MYRIAD)
       order = LESSONS_FIRST;
   } else {
     process(CELL_LESSON, wkLessons, counts.lessons);
     counts = getReviewLessonCounts();
     process(CELL_REVIEW, wkReviews, counts.reviews);
-    if (random(100) < 10)
+    if (random(10000) < LESSON_TO_REVIEW_PER_MYRIAD)
       order = REVIEWS_FIRST;
   }
 }
