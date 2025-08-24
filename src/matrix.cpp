@@ -208,7 +208,7 @@ void Matrix::updateReviewFutureRow() {
         for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy) {
           Coord c(x * MATRIX_RESOLUTION + sx, startY + sy);
           Cell *cell = getCell(c);
-          if (cell && (cell->type == CELL_EMPTY || cell->type == CELL_REVIEW_FUTURE))
+          if (cell && cell->type == CELL_REVIEW_FUTURE)
             setCell(c, CELL_REVIEW_FUTURE, 0);
         }
     return;

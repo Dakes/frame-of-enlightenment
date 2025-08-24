@@ -45,7 +45,7 @@ private:
     // Animation delay in ms
     #define ANIM_DELAY 10
     // Animation delay for hourglass fill
-    #define SPAWN_DELAY (1000 / MATRIX_RESOLUTION_SCALE)
+    #define SPAWN_DELAY (50 / MATRIX_RESOLUTION_SCALE)
 
 
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)
