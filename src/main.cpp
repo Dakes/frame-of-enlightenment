@@ -6,6 +6,7 @@
 #include "led.h"
 #include "matrix.h"
 #include "local_api.h"
+#include "runtime_config.h"
 
 // configure WiFi etc. in config.h
 
@@ -30,6 +31,7 @@ void setup()
     Serial.println((String)"FreeHeap: " + ESP.getFreeHeap()/1024);
 
     sleep(1);
+    g_config.load();
     led.begin();
 
     setupLocalApi(&wk);

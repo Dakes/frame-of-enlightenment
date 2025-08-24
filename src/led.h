@@ -4,10 +4,11 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include "utils.h"
+#include "runtime_config.h"
 
-#define HUE_LESSON 220          // pink-ish 320°: 227
-#define HUE_REVIEW 142          // cyan-ish 200°: 142
-#define HUE_REVIEW_FUTURE 35    // orange
+#define HUE_LESSON (g_config.hueLesson)          // pink-ish 320°: 227
+#define HUE_REVIEW (g_config.hueReview)          // cyan-ish 200°: 142
+#define HUE_REVIEW_FUTURE (g_config.hueReviewFuture)    // orange
 
 
 // See: https://github.com/FastLED/FastLED/blob/master/examples/XYMatrix/XYMatrix.ino for details about the options
@@ -36,12 +37,13 @@ private:
 
     // HSV Saturation
     #define S 255
-    #define MIN_S 50
     // HSV value (brightness / Luma)
     #define V 255
-    #define MIN_V 20
 
-    #define FRAMERATE 60
+    #define MIN_S (g_config.minS)
+    #define MIN_V (g_config.minV)
+
+    #define FRAMERATE (g_config.frameRate)
     #define MILLIS_PER_FRAME (1000 / FRAMERATE)
     // Animation delay in ms
     #define ANIM_DELAY 10
@@ -52,7 +54,7 @@ private:
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)
     #define LAST_VISIBLE_LED (NUM_LEDS - 1)
     // at how many Reviews+Lessons the frame should fully light up
-    #define FRAME_FULL 700
+    #define FRAME_FULL (g_config.frameFull)
     #define ITEMS_PER_PIXEL (FRAME_FULL / (MATRIX_WIDTH * MATRIX_HEIGHT))
 
     const bool kMatrixSerpentineLayout = true;
