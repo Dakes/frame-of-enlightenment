@@ -302,23 +302,38 @@ bool Matrix::removeRandomCell(CellType type) {
 }
 
 void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
-  // Choose a starting column around the center
-  uint8_t startX = MATRIX_INTERNAL_WIDTH / 2;
-  if ((MATRIX_INTERNAL_WIDTH & 1) == 0)
-    startX = (random(2) == 0) ? startX : (uint8_t)(startX - 1);
+  const uint8_t STAY_PERCENTAGE = 99;
+  const uint8_t MOVE_PERCENTAGE = 1;
+
+  static int8_t targetX = -1;
+  enum SpawnState { STAY, SEARCH };
+  static SpawnState state = SEARCH;
+
+  uint8_t startX;
+  if (state == STAY && targetX >= 0) {
+    startX = targetX;
+  } else {
+    startX = MATRIX_INTERNAL_WIDTH / 2;
+    if ((MATRIX_INTERNAL_WIDTH & 1) == 0)
+      startX = (random(2) == 0) ? startX : (uint8_t)(startX - 1);
+  }
 
   for (int16_t y = MATRIX_INTERNAL_HEIGHT - 1; y >= 0; --y) {
     bool rightFirst = random(2);
-      for (uint8_t offset = 0; offset < MATRIX_INTERNAL_WIDTH; ++offset) {
+    for (uint8_t offset = 0; offset < MATRIX_INTERNAL_WIDTH; ++offset) {
       int16_t x = startX + (rightFirst ? 1 : -1) * offset;
       if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
         setCell(Coord(x, y), type, value);
+        targetX = x;
+        state = (random(STAY_PERCENTAGE + MOVE_PERCENTAGE) < STAY_PERCENTAGE) ? STAY : SEARCH;
         return;
       }
       if (offset != 0) {
         x = startX - (rightFirst ? 1 : -1) * offset;
         if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
           setCell(Coord(x, y), type, value);
+          targetX = x;
+          state = (random(STAY_PERCENTAGE + MOVE_PERCENTAGE) < STAY_PERCENTAGE) ? STAY : SEARCH;
           return;
         }
       }
