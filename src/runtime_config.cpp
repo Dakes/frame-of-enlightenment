@@ -14,6 +14,10 @@ void RuntimeConfig::load() {
     hueLesson = prefs.getUChar("hLesson", hueLesson);
     hueReview = prefs.getUChar("hReview", hueReview);
     hueReviewFuture = prefs.getUChar("hReviewF", hueReviewFuture);
+    wifiSsid = prefs.getString("wifiSsid", wifiSsid);
+    wifiPass = prefs.getString("wifiPass", wifiPass);
+    wifiBackupSsid = prefs.getString("wifiBackupSsid", wifiBackupSsid);
+    wifiBackupPass = prefs.getString("wifiBackupPass", wifiBackupPass);
     prefs.end();
 }
 
@@ -26,6 +30,10 @@ void RuntimeConfig::save() {
     prefs.putUChar("hLesson", hueLesson);
     prefs.putUChar("hReview", hueReview);
     prefs.putUChar("hReviewF", hueReviewFuture);
+    prefs.putString("wifiSsid", wifiSsid);
+    prefs.putString("wifiPass", wifiPass);
+    prefs.putString("wifiBackupSsid", wifiBackupSsid);
+    prefs.putString("wifiBackupPass", wifiBackupPass);
     prefs.end();
 }
 
@@ -37,6 +45,10 @@ void RuntimeConfig::reset() {
     hueLesson = 220;
     hueReview = 142;
     hueReviewFuture = 35;
+    wifiSsid = WIFI_SSID;
+    wifiPass = WIFI_PASS;
+    wifiBackupSsid = WIFI_BACKUP_SSID;
+    wifiBackupPass = WIFI_BACKUP_PASS;
     save();
 }
 

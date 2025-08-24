@@ -7,6 +7,7 @@
 #include "matrix.h"
 #include "local_api.h"
 #include "runtime_config.h"
+#include "config.h"
 
 // configure WiFi etc. in config.h
 
@@ -24,14 +25,12 @@ void setup()
     Serial.printf("Reset reason: %d\n", (int)esp_reset_reason());
     delay(500);
     Serial.println("Welcome to the Frame of Enlightenment");
-    // delay(200);
-    // int result = myFunction(2, 3);
+    g_config.load();
     Utils::WifiConnect();
     randomSeed(millis());
     Serial.println((String)"FreeHeap: " + ESP.getFreeHeap()/1024);
 
     sleep(1);
-    g_config.load();
     led.begin();
 
     setupLocalApi(&wk);

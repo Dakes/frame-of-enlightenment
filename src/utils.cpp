@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "runtime_config.h"
 
 void Utils::WifiConnect()
 {
@@ -9,7 +10,7 @@ void Utils::WifiConnect()
     delay(100);
 
     WiFi.setHostname("WaniKani frame of enlightenment");
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    WiFi.begin(g_config.wifiSsid.c_str(), g_config.wifiPass.c_str());
 
     Serial.println("Connecting to WiFi");
     uint8_t wifiCounter = 0;
@@ -22,19 +23,19 @@ void Utils::WifiConnect()
             Serial.println("Failed to connect to WIFI. Please verify credentials");
         }
 
-        if (WIFI_BACKUP_SSID)
+        if (g_config.wifiBackupSsid.length() > 0)
         {
             if (wifiCounter % (retrySeconds * 2) == retrySeconds * 2 - 1)
             {
-                Serial.println("Changing WiFi to " + (String)WIFI_SSID);
+                Serial.println("Changing WiFi to " + g_config.wifiSsid);
                 WiFi.disconnect();
-                WiFi.begin(WIFI_SSID, WIFI_PASS);
+                WiFi.begin(g_config.wifiSsid.c_str(), g_config.wifiPass.c_str());
             }
             else if (wifiCounter % retrySeconds == retrySeconds - 1)
             {
-                Serial.println("Changing WiFi to " + (String)WIFI_BACKUP_SSID);
+                Serial.println("Changing WiFi to " + g_config.wifiBackupSsid);
                 WiFi.disconnect();
-                WiFi.begin(WIFI_BACKUP_SSID, WIFI_BACKUP_PASS);
+                WiFi.begin(g_config.wifiBackupSsid.c_str(), g_config.wifiBackupPass.c_str());
             }
         }
         delay(1000);
