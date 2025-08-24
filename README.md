@@ -6,6 +6,12 @@ The device exposes a small HTTP server that allows several runtime constants
 to be adjusted without recompiling. These values are persisted in the ESP32's
 non‑volatile storage so they survive power cycles.
 
+### Web interface
+
+Visit `http://<device-ip>/` in a browser to access a lightweight configuration
+page. It fetches the current settings and lets you update them using a simple
+form instead of manual `curl` commands.
+
 ### Updating parameters
 
 Send a `GET` request to `/config` with one or more URL parameters. Supported
@@ -38,6 +44,8 @@ curl "http://<device-ip>/config?wifi_ssid=Home&wifi_pass=secret&wifi_backup_ssid
 The endpoint responds with a JSON object containing the current settings. If
 called without parameters, it simply returns the existing configuration with any
 password fields redacted.
+
+You can find reference HSV hue values in the [FastLED HSV Colors chart](https://github.com/FastLED/FastLED/wiki/FastLED-HSV-Colors).
 
 ### Resetting to defaults
 
