@@ -19,6 +19,7 @@ void Matrix::clear() {
 void Matrix::setCell(Coord coord, CellType type, uint8_t value) {
   const uint8_t x = coord.x;
   const uint8_t y = coord.y;
+
   if (x >= MATRIX_INTERNAL_WIDTH || y >= MATRIX_INTERNAL_HEIGHT)
     return;
   cellAt(x, y).type = type;
@@ -180,7 +181,52 @@ void Matrix::generalCellLogic(Coord coord) {
   // else: stays in place (rests on floor or another cell)
 }
 
-void Matrix::lessonCellLogic(Coord coord) {}
+void Matrix::lessonCellLogic(Coord coord) {
+  Cell *cur = getCell(coord);
+  if (!cur || cur->type != CELL_LESSON)
+    return;
+
+  const uint8_t x = coord.x;
+  const uint8_t y = coord.y;
+
+  Cell *below = (y > 0) ? getCell(x, (uint8_t)(y - 1)) : nullptr;
+  if (!below || below->type == CELL_EMPTY)
+    return;
+
+  Cell *downLeft1 =
+      (y > 0 && x > 0) ? getCell((uint8_t)(x - 1), (uint8_t)(y - 1)) : nullptr;
+  Cell *downRight1 =
+      (y > 0 && (uint8_t)(x + 1) < MATRIX_INTERNAL_WIDTH)
+          ? getCell((uint8_t)(x + 1), (uint8_t)(y - 1))
+          : nullptr;
+  Cell *downLeft2 =
+      (y > 0 && x > 1) ? getCell((uint8_t)(x - 2), (uint8_t)(y - 1)) : nullptr;
+  Cell *downRight2 =
+      (y > 0 && (uint8_t)(x + 2) < MATRIX_INTERNAL_WIDTH)
+          ? getCell((uint8_t)(x + 2), (uint8_t)(y - 1))
+          : nullptr;
+
+  const bool canSlipLeft = (downLeft1 && downLeft1->type != CELL_EMPTY &&
+                            downLeft2 && downLeft2->type == CELL_EMPTY);
+  const bool canSlipRight =
+      (downRight1 && downRight1->type != CELL_EMPTY && downRight2 &&
+       downRight2->type == CELL_EMPTY);
+
+  if (canSlipLeft && canSlipRight) {
+    if ((millis() & 1) == 0)
+      *downLeft2 = *cur;
+    else
+      *downRight2 = *cur;
+
+    *cur = Cell();
+  } else if (canSlipLeft) {
+    *downLeft2 = *cur;
+    *cur = Cell();
+  } else if (canSlipRight) {
+    *downRight2 = *cur;
+    *cur = Cell();
+  }
+}
 
 void Matrix::reviewCellLogic(Coord coord) {}
 
@@ -308,6 +354,10 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
   enum SpawnState { STAY, SEARCH };
   static SpawnState state = SEARCH;
 
+  if (type == CELL_LESSON) {
+    state = STAY;
+  }
+
   uint8_t startX;
   if (state == STAY && targetX >= 0) {
     startX = targetX;
@@ -324,7 +374,8 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
       if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
         setCell(Coord(x, y), type, value);
         targetX = x;
-        state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
+        if (type == CELL_REVIEW)
+          state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
         return;
       }
       if (offset != 0) {
@@ -332,7 +383,8 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
         if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
           setCell(Coord(x, y), type, value);
           targetX = x;
-          state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
+          if (type == CELL_REVIEW)
+            state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
           return;
         }
       }
