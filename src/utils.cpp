@@ -22,17 +22,20 @@ void Utils::WifiConnect()
             Serial.println("Failed to connect to WIFI. Please verify credentials");
         }
 
-        if (wifiCounter % retrySeconds*2 == retrySeconds*2-1 && WIFI_BACKUP_SSID)
+        if (WIFI_BACKUP_SSID)
         {
-            Serial.println("Changing WiFi to" + (String)WIFI_SSID);
-            WiFi.disconnect();
-            WiFi.begin(WIFI_SSID, WIFI_PASS);
-        }
-        else if (wifiCounter % retrySeconds == retrySeconds-1 && WIFI_BACKUP_SSID)
-        {
-            Serial.println("Changing WiFi to" + (String)WIFI_BACKUP_SSID);
-            WiFi.disconnect();
-            WiFi.begin(WIFI_BACKUP_SSID, WIFI_BACKUP_PASS);
+            if (wifiCounter % (retrySeconds * 2) == retrySeconds * 2 - 1)
+            {
+                Serial.println("Changing WiFi to " + (String)WIFI_SSID);
+                WiFi.disconnect();
+                WiFi.begin(WIFI_SSID, WIFI_PASS);
+            }
+            else if (wifiCounter % retrySeconds == retrySeconds - 1)
+            {
+                Serial.println("Changing WiFi to " + (String)WIFI_BACKUP_SSID);
+                WiFi.disconnect();
+                WiFi.begin(WIFI_BACKUP_SSID, WIFI_BACKUP_PASS);
+            }
         }
         delay(1000);
         wifiCounter++;
