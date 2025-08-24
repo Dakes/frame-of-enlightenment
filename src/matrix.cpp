@@ -41,6 +41,11 @@ void Matrix::setCell(Coord coord, CellType type, uint8_t value) {
   }
 
   cellAt(x, y).hue += random(-hueRandomness, hueRandomness + 1);
+
+  if (type == CELL_LESSON || type == CELL_REVIEW)
+    cellAt(x, y).saturation = random(50, 201);
+  else
+    cellAt(x, y).saturation = S;
 }
 
 void Matrix::setCell(Coord coord, CellType type) {
@@ -70,6 +75,7 @@ CHSV Matrix::getLedColor(uint8_t x, uint8_t y) const {
     int32_t vecX = 0;
     int32_t vecY = 0;
     uint32_t sumV = 0;
+    uint32_t sumS = 0;
 
     for (uint8_t sx = 0; sx < MATRIX_RESOLUTION; ++sx) {
         for (uint8_t sy = 0; sy < MATRIX_RESOLUTION; ++sy) {
@@ -80,6 +86,7 @@ CHSV Matrix::getLedColor(uint8_t x, uint8_t y) const {
             if (cell.type != CELL_EMPTY) {
                 const uint8_t h = cell.hue;
                 const uint8_t v = cell.value;
+                const uint8_t s = cell.saturation;
 
                 const int16_t cx = (int16_t)cos8(h) - 128;
                 const int16_t cy = (int16_t)sin8(h) - 128;
@@ -87,6 +94,7 @@ CHSV Matrix::getLedColor(uint8_t x, uint8_t y) const {
                 vecX += (int32_t)cx * v;
                 vecY += (int32_t)cy * v;
                 sumV += v;
+                sumS += (uint32_t)s * v;
             }
         }
     }
@@ -95,6 +103,10 @@ CHSV Matrix::getLedColor(uint8_t x, uint8_t y) const {
 
     // Average value across the full supersample grid (empties contribute 0)
     const uint8_t avgV = (uint8_t)(sumV / total);
+    uint8_t avgS = 0;
+    if (sumV > 0) {
+        avgS = (uint8_t)(sumS / sumV);
+    }
 
     // Compute average hue from vector; default to 0 if vector is zero
     uint8_t avgH = 0;
@@ -107,8 +119,7 @@ CHSV Matrix::getLedColor(uint8_t x, uint8_t y) const {
         avgH = (uint8_t)(angle * 40.584510488f); // 255 / (2*pi)
     }
 
-    // Keep saturation constant
-    return CHSV(avgH, S, avgV);
+    return CHSV(avgH, avgS, avgV);
 }
 
 
@@ -149,6 +160,7 @@ void Matrix::generalCellLogic(Coord coord) {
                         : nullptr; // y==0 -> boundary (nullptr)
   if (below && below->type == CELL_EMPTY) {
     *below = *cur;
+    below->saturation = random(50, 201);
     *cur = Cell(); // leave an empty cell behind
     return;
   }
@@ -165,20 +177,26 @@ void Matrix::generalCellLogic(Coord coord) {
 
   if (leftFree && rightFree) {
     // Simple randomness: millis() LSB
-    if ((millis() & 1) == 0)
+    if ((millis() & 1) == 0) {
       *downLeft = *cur;
-    else
+      downLeft->saturation = random(50, 201);
+    } else {
       *downRight = *cur;
+      downRight->saturation = random(50, 201);
+    }
 
     *cur = Cell();
   } else if (leftFree) {
     *downLeft = *cur;
+    downLeft->saturation = random(50, 201);
     *cur = Cell();
   } else if (rightFree) {
     *downRight = *cur;
+    downRight->saturation = random(50, 201);
     *cur = Cell();
+  } else {
+    cur->saturation = S; // stays in place (rests on floor or another cell)
   }
-  // else: stays in place (rests on floor or another cell)
 }
 
 void Matrix::lessonCellLogic(Coord coord) {
@@ -213,18 +231,25 @@ void Matrix::lessonCellLogic(Coord coord) {
        downRight2->type == CELL_EMPTY);
 
   if (canSlipLeft && canSlipRight) {
-    if ((millis() & 1) == 0)
+    if ((millis() & 1) == 0) {
       *downLeft2 = *cur;
-    else
+      downLeft2->saturation = random(50, 201);
+    } else {
       *downRight2 = *cur;
+      downRight2->saturation = random(50, 201);
+    }
 
     *cur = Cell();
   } else if (canSlipLeft) {
     *downLeft2 = *cur;
+    downLeft2->saturation = random(50, 201);
     *cur = Cell();
   } else if (canSlipRight) {
     *downRight2 = *cur;
+    downRight2->saturation = random(50, 201);
     *cur = Cell();
+  } else {
+    cur->saturation = S;
   }
 }
 
