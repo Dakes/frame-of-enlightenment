@@ -1,6 +1,4 @@
 #include <Arduino.h>
-// #include <FastLED.h>
-#include <time.h>
 #include <HTTPClient.h>
 #include "WiFi.h"
 #include "wanikani.h"
@@ -28,6 +26,7 @@ void setup()
     // delay(200);
     // int result = myFunction(2, 3);
     Utils::WifiConnect();
+    randomSeed(millis());
     Serial.println((String)"FreeHeap: " + ESP.getFreeHeap()/1024);
 
     sleep(1);
@@ -35,37 +34,9 @@ void setup()
 
     setupLocalApi(&wk);
 
-
-    matrix.clear();
-
-    // test sets
-    // matrix.setCell(Coord(0, 0), CELL_REVIEW, V);
-    // matrix.setCell(Coord(1, 1), CELL_REVIEW, V);
-    // matrix.setCell(Coord(2, 5), CELL_REVIEW, V);
-    // matrix.setCell(Coord(3, 6), CELL_LESSON, V);
-    // matrix.setCell(Coord(3, 9), CELL_LESSON, V);
-    // matrix.setCell(Coord(3, 8), CELL_LESSON, V);
-    // matrix.setCell(Coord(3, 7), CELL_LESSON, V);
-    // matrix.setCell(Coord(3, 6), CELL_LESSON, V);
-    // matrix.setCell(Coord(3, 5), CELL_LESSON, V);
-    // matrix.setCell(Coord(3, 4), CELL_LESSON, V);
-    // matrix.setCell(Coord(3, 3), CELL_LESSON, V);
-    //
-    // matrix.setCell(Coord(2, 9),CELL_REVIEW ,V);
-    // matrix.setCell(Coord(2, 8),CELL_REVIEW ,V);
-    // matrix.setCell(Coord(2, 7),CELL_REVIEW ,V);
-    // matrix.setCell(Coord(2, 6),CELL_REVIEW ,V);
-    // matrix.setCell(Coord(2, 5),CELL_REVIEW ,V);
-    // matrix.setCell(Coord(2, 4),CELL_REVIEW ,V);
-    // matrix.setCell(Coord(2, 3),CELL_REVIEW ,V);
-    //
-    // matrix.setCell(Coord(1, 9), CELL_LESSON, V);
-    // matrix.setCell(Coord(1, 8), CELL_LESSON, V);
-    // matrix.setCell(Coord(1, 7), CELL_LESSON, V);
-    // matrix.setCell(Coord(1, 6), CELL_LESSON, V);
-    // matrix.setCell(Coord(1, 5), CELL_LESSON, V);
-    // matrix.setCell(Coord(1, 4), CELL_LESSON, V);
-    // matrix.setCell(Coord(1, 3), CELL_LESSON, V);
+    matrix.init();
+    Serial.println("MILLIS_PER_FRAME: " + String(MILLIS_PER_FRAME));
+    Serial.println("SPAWN_DELAY: " + String(SPAWN_DELAY));
 }
 
 
@@ -98,11 +69,6 @@ void loop()
 
     EVERY_N_MILLISECONDS(MILLIS_PER_FRAME)
     {
-        // Serial.println("Reviews: "+(String)wk.getReviews());
-        // Serial.println("Lessons: "+(String)wk.getLessons());
-
-
-
         matrix.simulationStep();
         matrix.updateReviewFutureRow();
         matrix.checkReviewLessonCounts();

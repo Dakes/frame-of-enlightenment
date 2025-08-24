@@ -11,8 +11,19 @@
 
 
 // See: https://github.com/FastLED/FastLED/blob/master/examples/XYMatrix/XYMatrix.ino for details about the options
+// Physical matrix size in pixels
 #define MATRIX_WIDTH  10  // adjust
 #define MATRIX_HEIGHT 10  // adjust
+
+// factor by which the simulation matrix is higher resolution than the LED matrix
+#define MATRIX_RESOLUTION 10
+
+// scale derived from resolution for timing adjustments (half resolution, min 1)
+#define MATRIX_RESOLUTION_SCALE ((MATRIX_RESOLUTION + 1) / 2)
+
+// internal high-resolution matrix dimensions
+#define MATRIX_INTERNAL_WIDTH  (MATRIX_WIDTH  * MATRIX_RESOLUTION)
+#define MATRIX_INTERNAL_HEIGHT (MATRIX_HEIGHT * MATRIX_RESOLUTION)
 
 class Matrix; // forward declaration
 
@@ -27,13 +38,14 @@ private:
     #define S 255
     // HSV value (brightness / Luma)
     #define V 255
+    #define MIN_V 20
 
     #define FRAMERATE 60
     #define MILLIS_PER_FRAME (1000 / FRAMERATE)
     // Animation delay in ms
     #define ANIM_DELAY 10
     // Animation delay for hourglass fill
-    #define SPAWN_DELAY 1000
+    #define SPAWN_DELAY (50 / MATRIX_RESOLUTION_SCALE)
 
 
     #define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)
