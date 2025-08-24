@@ -54,9 +54,9 @@ void setupLocalApi(WaniKani* wk)
         resp += ",\"hue_review\":" + String(g_config.hueReview);
         resp += ",\"hue_review_future\":" + String(g_config.hueReviewFuture);
         resp += ",\"wifi_ssid\":\"" + g_config.wifiSsid + "\"";
-        resp += ",\"wifi_pass\":\"" + g_config.wifiPass + "\"";
+        resp += ",\"wifi_pass\":\"" + String(g_config.wifiPass.length() ? "***" : "") + "\"";
         resp += ",\"wifi_backup_ssid\":\"" + g_config.wifiBackupSsid + "\"";
-        resp += ",\"wifi_backup_pass\":\"" + g_config.wifiBackupPass + "\"";
+        resp += ",\"wifi_backup_pass\":\"" + String(g_config.wifiBackupPass.length() ? "***" : "") + "\"";
         resp += "}";
         server.send(200, "application/json", resp);
         if (wifiUpdated) { Utils::WifiConnect(); }

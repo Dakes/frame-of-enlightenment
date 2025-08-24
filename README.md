@@ -19,9 +19,9 @@ fields include:
 - `hue_review` – hue used for current review items
 - `hue_review_future` – hue used for upcoming review items
 - `wifi_ssid` – primary WiFi network name
-- `wifi_pass` – primary WiFi password
+- `wifi_pass` – primary WiFi password (redacted in responses)
 - `wifi_backup_ssid` – optional backup network name
-- `wifi_backup_pass` – password for the backup network
+- `wifi_backup_pass` – password for the backup network (redacted in responses)
 
 Example: set the frame rate to 30 FPS and minimum brightness to 10:
 
@@ -36,7 +36,8 @@ curl "http://<device-ip>/config?wifi_ssid=Home&wifi_pass=secret&wifi_backup_ssid
 ```
 
 The endpoint responds with a JSON object containing the current settings. If
-called without parameters, it simply returns the existing configuration.
+called without parameters, it simply returns the existing configuration with any
+password fields redacted.
 
 ### Resetting to defaults
 
