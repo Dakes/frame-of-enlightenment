@@ -303,7 +303,6 @@ bool Matrix::removeRandomCell(CellType type) {
 
 void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
   const uint8_t STAY_PERCENTAGE = 99;
-  const uint8_t MOVE_PERCENTAGE = 1;
 
   static int8_t targetX = -1;
   enum SpawnState { STAY, SEARCH };
@@ -325,7 +324,7 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
       if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
         setCell(Coord(x, y), type, value);
         targetX = x;
-        state = (random(STAY_PERCENTAGE + MOVE_PERCENTAGE) < STAY_PERCENTAGE) ? STAY : SEARCH;
+        state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
         return;
       }
       if (offset != 0) {
@@ -333,7 +332,7 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
         if (x >= 0 && x < MATRIX_INTERNAL_WIDTH && cellAt(x, y).type == CELL_EMPTY) {
           setCell(Coord(x, y), type, value);
           targetX = x;
-          state = (random(STAY_PERCENTAGE + MOVE_PERCENTAGE) < STAY_PERCENTAGE) ? STAY : SEARCH;
+          state = (random(100) < STAY_PERCENTAGE) ? STAY : SEARCH;
           return;
         }
       }
@@ -345,6 +344,10 @@ void Matrix::spawnCellAtTop(CellType type, uint8_t value) {
 
 void Matrix::checkReviewLessonCounts() {
   static ulong lastSpawn = 0;
+  enum SpawnOrder { REVIEWS_FIRST, LESSONS_FIRST };
+  static SpawnOrder order = REVIEWS_FIRST;
+  const uint8_t REVIEW_TO_LESSON_PER_MYRIAD = 8;
+  const uint8_t LESSON_TO_REVIEW_PER_MYRIAD = 10;
 
   int16_t wkLessons = wk->getLessons();
   int16_t wkReviews = wk->getReviews();
@@ -375,7 +378,17 @@ void Matrix::checkReviewLessonCounts() {
   };
 
   ReviewLessonCounts counts = getReviewLessonCounts();
-  process(CELL_REVIEW, wkReviews, counts.reviews);
-  counts = getReviewLessonCounts();
-  process(CELL_LESSON, wkLessons, counts.lessons);
+  if (order == REVIEWS_FIRST) {
+    process(CELL_REVIEW, wkReviews, counts.reviews);
+    counts = getReviewLessonCounts();
+    process(CELL_LESSON, wkLessons, counts.lessons);
+    if (random(10000) < REVIEW_TO_LESSON_PER_MYRIAD)
+      order = LESSONS_FIRST;
+  } else {
+    process(CELL_LESSON, wkLessons, counts.lessons);
+    counts = getReviewLessonCounts();
+    process(CELL_REVIEW, wkReviews, counts.reviews);
+    if (random(10000) < LESSON_TO_REVIEW_PER_MYRIAD)
+      order = REVIEWS_FIRST;
+  }
 }
