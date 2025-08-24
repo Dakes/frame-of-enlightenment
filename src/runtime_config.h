@@ -9,6 +9,9 @@ struct RuntimeConfig {
     uint16_t frameRate = 60;
     uint8_t minS = 50;
     uint8_t minV = 20;
+    uint8_t maxS = 255;
+    uint8_t maxV = 255;
+    uint8_t matrixResolution = 10;
     uint8_t hueLesson = 220;
     uint8_t hueReview = 142;
     uint8_t hueReviewFuture = 35;

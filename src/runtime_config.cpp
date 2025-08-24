@@ -11,6 +11,9 @@ void RuntimeConfig::load() {
     frameRate = prefs.getUInt("frameRate", frameRate);
     minS = prefs.getUChar("minS", minS);
     minV = prefs.getUChar("minV", minV);
+    maxS = prefs.getUChar("maxS", maxS);
+    maxV = prefs.getUChar("maxV", maxV);
+    matrixResolution = prefs.getUChar("matrixRes", matrixResolution);
     hueLesson = prefs.getUChar("hLesson", hueLesson);
     hueReview = prefs.getUChar("hReview", hueReview);
     hueReviewFuture = prefs.getUChar("hReviewF", hueReviewFuture);
@@ -27,6 +30,9 @@ void RuntimeConfig::save() {
     prefs.putUInt("frameRate", frameRate);
     prefs.putUChar("minS", minS);
     prefs.putUChar("minV", minV);
+    prefs.putUChar("maxS", maxS);
+    prefs.putUChar("maxV", maxV);
+    prefs.putUChar("matrixRes", matrixResolution);
     prefs.putUChar("hLesson", hueLesson);
     prefs.putUChar("hReview", hueReview);
     prefs.putUChar("hReviewF", hueReviewFuture);
@@ -42,6 +48,9 @@ void RuntimeConfig::reset() {
     frameRate = 60;
     minS = 50;
     minV = 20;
+    maxS = 255;
+    maxV = 255;
+    matrixResolution = 10;
     hueLesson = 220;
     hueReview = 142;
     hueReviewFuture = 35;

@@ -17,7 +17,7 @@
 #define MATRIX_HEIGHT 10  // adjust
 
 // factor by which the simulation matrix is higher resolution than the LED matrix
-#define MATRIX_RESOLUTION 10
+#define MATRIX_RESOLUTION (g_config.matrixResolution)
 
 // scale derived from resolution for timing adjustments (half resolution, min 1)
 #define MATRIX_RESOLUTION_SCALE ((MATRIX_RESOLUTION + 1) / 2)
@@ -36,17 +36,15 @@ private:
     #define COLOR_ORDER GRB
 
     // HSV Saturation
-    #define S 255
+    #define S (g_config.maxS)
     // HSV value (brightness / Luma)
-    #define V 255
+    #define V (g_config.maxV)
 
     #define MIN_S (g_config.minS)
     #define MIN_V (g_config.minV)
 
     #define FRAMERATE (g_config.frameRate)
     #define MILLIS_PER_FRAME (1000 / FRAMERATE)
-    // Animation delay in ms
-    #define ANIM_DELAY 10
     // Animation delay for hourglass fill
     #define SPAWN_DELAY (50 / MATRIX_RESOLUTION_SCALE)
 
@@ -62,11 +60,6 @@ private:
 
     void setup();
     void printLeds();
-    void fadeToHue(CRGB* pixel, uint8_t targetHue);
-    void fadeOn(CRGB* pixel, uint8_t hue);
-    void fadeOff(CRGB* pixel);
-    void show();
-    void show(u16_t delay);
 
     struct lightLedParameters
     {

@@ -29,17 +29,20 @@ button:hover{opacity:0.9;}
 <div class="container">
 <h1>Frame of Enlightenment config</h1>
 <form id="cfgForm">
-<label>Frame Full:<input type="number" id="frame_full" name="frame_full"></label>
-<label>Framerate:<input type="number" id="framerate" name="framerate"></label>
-<label>Min S:<input type="number" id="min_s" name="min_s"></label>
-<label>Min V:<input type="number" id="min_v" name="min_v"></label>
-<label>Hue Lesson:<input type="number" id="hue_lesson" name="hue_lesson"></label>
-<label>Hue Review:<input type="number" id="hue_review" name="hue_review"></label>
-<label>Hue Review Future:<input type="number" id="hue_review_future" name="hue_review_future"></label>
-<label>WiFi SSID:<input type="text" id="wifi_ssid" name="wifi_ssid"></label>
-<label>WiFi Pass:<input type="password" id="wifi_pass" name="wifi_pass"></label>
-<label>WiFi Backup SSID:<input type="text" id="wifi_backup_ssid" name="wifi_backup_ssid"></label>
-<label>WiFi Backup Pass:<input type="password" id="wifi_backup_pass" name="wifi_backup_pass"></label>
+<label title="Total items required to light the entire frame">Frame Full:<input type="number" id="frame_full" name="frame_full"></label>
+<label title="Display refresh rate (frames per second)">Framerate:<input type="number" id="framerate" name="framerate"></label>
+<label title="Minimum saturation used for animated cells">Minimum Saturation:<input type="number" id="min_s" name="min_s"></label>
+<label title="Base brightness level applied to animated cells">Base Brightness:<input type="number" id="min_v" name="min_v"></label>
+<label title="Base color saturation">Max S:<input type="number" id="max_s" name="max_s"></label>
+<label title="Base brightness value">Max V:<input type="number" id="max_v" name="max_v"></label>
+<label title="Multiplier for the internal simulation resolution. 10x means 10x higher resolution per axis, so 100 simulated cells per LED">Matrix Resolution:<input type="number" id="matrix_resolution" name="matrix_resolution"></label>
+<label title="Hue for lesson cells">Hue Lesson:<input type="number" id="hue_lesson" name="hue_lesson"></label>
+<label title="Hue for review cells">Hue Review:<input type="number" id="hue_review" name="hue_review"></label>
+<label title="Hue for upcoming reviews">Hue Review Future:<input type="number" id="hue_review_future" name="hue_review_future"></label>
+<label title="Primary WiFi network name">WiFi SSID:<input type="text" id="wifi_ssid" name="wifi_ssid"></label>
+<label title="Primary WiFi password">WiFi Pass:<input type="password" id="wifi_pass" name="wifi_pass"></label>
+<label title="Backup WiFi network name">WiFi Backup SSID:<input type="text" id="wifi_backup_ssid" name="wifi_backup_ssid"></label>
+<label title="Backup WiFi password">WiFi Backup Pass:<input type="password" id="wifi_backup_pass" name="wifi_backup_pass"></label>
 <button type="submit">Save</button>
 </form>
 <button id="reset">Reset to defaults</button>
@@ -110,6 +113,9 @@ void setupLocalApi(WaniKani* wk)
         if (server.hasArg("framerate")) { g_config.frameRate = server.arg("framerate").toInt(); updated = true; }
         if (server.hasArg("min_s")) { g_config.minS = server.arg("min_s").toInt(); updated = true; }
         if (server.hasArg("min_v")) { g_config.minV = server.arg("min_v").toInt(); updated = true; }
+        if (server.hasArg("max_s")) { g_config.maxS = server.arg("max_s").toInt(); updated = true; }
+        if (server.hasArg("max_v")) { g_config.maxV = server.arg("max_v").toInt(); updated = true; }
+        if (server.hasArg("matrix_resolution")) { g_config.matrixResolution = server.arg("matrix_resolution").toInt(); updated = true; }
         if (server.hasArg("hue_lesson")) { g_config.hueLesson = server.arg("hue_lesson").toInt(); updated = true; }
         if (server.hasArg("hue_review")) { g_config.hueReview = server.arg("hue_review").toInt(); updated = true; }
         if (server.hasArg("hue_review_future")) { g_config.hueReviewFuture = server.arg("hue_review_future").toInt(); updated = true; }
@@ -123,6 +129,9 @@ void setupLocalApi(WaniKani* wk)
         resp += ",\"framerate\":" + String(g_config.frameRate);
         resp += ",\"min_s\":" + String(g_config.minS);
         resp += ",\"min_v\":" + String(g_config.minV);
+        resp += ",\"max_s\":" + String(g_config.maxS);
+        resp += ",\"max_v\":" + String(g_config.maxV);
+        resp += ",\"matrix_resolution\":" + String(g_config.matrixResolution);
         resp += ",\"hue_lesson\":" + String(g_config.hueLesson);
         resp += ",\"hue_review\":" + String(g_config.hueReview);
         resp += ",\"hue_review_future\":" + String(g_config.hueReviewFuture);
