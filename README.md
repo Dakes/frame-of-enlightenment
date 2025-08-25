@@ -58,3 +58,27 @@ curl -X POST "http://<device-ip>/config/reset"
 
 All values are reset and persisted immediately.
 
+## Presence Detection (optional)
+
+The project can automatically enable the LEDs only when someone is nearby and
+turn them off when the room is empty. Presence detection also takes ambient
+light into account:
+
+- **Daytime:** LEDs remain on for a few minutes after motion stops.
+- **Nighttime:** LEDs turn off immediately once no motion is detected.
+
+### Wiring
+
+1. **PIR motion sensor (HC‑SR501 or similar)**
+   - VCC → 5V
+   - GND → GND
+   - OUT → GPIO 25
+2. **Light sensor (LDR)**
+   - Create a voltage divider: 3.3V → LDR → GPIO 34 → 10 kΩ resistor → GND
+
+### Enabling
+
+Presence detection is compiled in by defining the `ENABLE_PRESENCE` build flag.
+It is enabled in `platformio.ini` and can be disabled by removing the flag or
+passing `-U ENABLE_PRESENCE` when compiling.
+
