@@ -8,6 +8,8 @@
 #include "local_api.h"
 #include "runtime_config.h"
 #include "config.h"
+#include "presence.h"
+#include <FastLED.h>
 
 // configure WiFi etc. in config.h
 
@@ -17,6 +19,8 @@ int16_t lastLessons = -1;
 WaniKani wk(API_KEY);
 Led led = Led();
 Matrix matrix = Matrix(&wk);
+PresenceDetector presence(25, 34);
+bool g_active = false;
 
 void setup()
 {
@@ -32,6 +36,8 @@ void setup()
 
     sleep(1);
     led.begin();
+
+    presence.init();
 
     setupLocalApi(&wk);
 
@@ -59,22 +65,49 @@ void showWifi()
 void loop()
 {
 
-    showWifi();
+    bool shouldRun = presence.shouldBeActive();
 
-    if (Utils::WiFiConnected())
+    if (shouldRun && !g_active)
     {
+        Serial.println("Presence detected, waking system...");
+        presence.onSystemWake();
+        wk.lastRequestTime = 0;
         wk.refresh();
+        matrix.init();
+        g_active = true;
+    }
+    else if (!shouldRun && g_active)
+    {
+        Serial.println("No presence, sleeping...");
+        FastLED.clear();
+        FastLED.show();
+        g_active = false;
     }
 
-    handleLocalApi();
-
-    EVERY_N_MILLISECONDS(MILLIS_PER_FRAME)
+    if (shouldRun)
     {
-        matrix.simulationStep();
-        matrix.updateReviewFutureRow();
-        matrix.checkReviewLessonCounts();
+        showWifi();
 
-        led.displayMatrix(matrix);
+        if (Utils::WiFiConnected())
+        {
+            wk.refresh();
+        }
+
+        handleLocalApi();
+
+        EVERY_N_MILLISECONDS(MILLIS_PER_FRAME)
+        {
+            matrix.simulationStep();
+            matrix.updateReviewFutureRow();
+            matrix.checkReviewLessonCounts();
+
+            led.displayMatrix(matrix);
+        }
+    }
+    else
+    {
+        handleLocalApi();
+        delay(100);
     }
 }
 
